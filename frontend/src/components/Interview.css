@@ -1,0 +1,72 @@
+.interview-container {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(106, 123, 255, 0.08);
+  padding: 2rem 2.5rem;
+  margin: 2rem auto;
+  width: 100%;
+  color: #111;
+  max-width: 430px;
+  box-sizing: border-box;
+  position: relative;
+}
+.interview-container h3,
+.interview-container h2 {
+  color: #111;
+}
+.interview-container label {
+  font-weight: 600;
+  color: #111;
+}
+.add-question-btn {
+  background: #f4f7ff;
+  color: #5c43fa;
+  border: 2px solid #5c43fa;
+  padding: 0.7em 1.2em;
+  border-radius: 7px;
+  font-weight: 600;
+  font-size: 1.07em;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background 0.16s, color 0.16s, border 0.16s;
+  box-shadow: 0 1px 4px rgba(92,67,250,0.07);
+  width: 100%;
+}
+.add-question-btn:hover {
+  background: #5c43fa;
+  color: #fff;
+  border: 2px solid #5c43fa;
+}
+.interview-container textarea {
+  width: 100%;
+  min-height: 70px;
+  border-radius: 8px;
+  border: 1.3px solid #dbeafe;
+  background: #f1f5ff;
+  font-size: 1em;
+  padding: 0.7em;
+  margin: 0.3em 0;
+  color: #111;
+  transition: border-color 0.23s, background 0.23s;
+  box-sizing: border-box;
+}
+.interview-container textarea:focus {
+  border-color: #5c43fa;
+  background: #e0e7ff;
+  outline: none;
+}
+.interview-container ul {
+  padding-left: 1.3em;
+  color: #111;
+}
+.interview-container li {
+  margin-bottom: 1em;
+  color: #111;
+}
+@media (max-width: 700px) {
+  .interview-container {
+    padding: 1.2rem 0.7rem;
+    max-width: 99vw;
+    margin: 1.1rem auto;
+  }
+}

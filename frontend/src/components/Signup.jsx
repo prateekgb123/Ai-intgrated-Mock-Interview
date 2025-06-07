@@ -1,21 +1,62 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import './AuthForm.css';
 
-function Signup() {
+function Signup({ onBackToLogin }) {
   const [data, setData] = useState({ username: '', email: '', password: '' });
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await axios.post('http://localhost:5000/signup', data);
-    alert('Signup successful');
+    setLoading(true);
+    setMsg('');
+    try {
+      await axios.post('http://localhost:5000/signup', data);
+      setMsg('Signup successful! You can now sign in.');
+      setTimeout(() => {
+        onBackToLogin();
+      }, 1300); // Show success for a moment before switching back
+    } catch (error) {
+      setMsg('Signup failed: ' + (error.response?.data || error.message));
+    }
+    setLoading(false);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" placeholder="Username" onChange={(e) => setData({ ...data, username: e.target.value })} />
-      <input type="email" placeholder="Email" onChange={(e) => setData({ ...data, email: e.target.value })} />
-      <input type="password" placeholder="Password" onChange={(e) => setData({ ...data, password: e.target.value })} />
-      <button type="submit">Sign Up</button>
+    <form className="auth-form" onSubmit={handleSubmit}>
+      <h2>Sign Up</h2>
+      {msg && <div className="form-msg">{msg}</div>}
+      <label>Username</label>
+      <input
+        type="text"
+        required
+        autoComplete="username"
+        onChange={e => setData({ ...data, username: e.target.value })}
+      />
+      <label>Email</label>
+      <input
+        type="email"
+        required
+        autoComplete="email"
+        onChange={e => setData({ ...data, email: e.target.value })}
+      />
+      <label>Password</label>
+      <input
+        type="password"
+        required
+        autoComplete="new-password"
+        onChange={e => setData({ ...data, password: e.target.value })}
+      />
+      <button type="submit" disabled={loading}>
+        {loading ? 'Signing up...' : 'Sign Up'}
+      </button>
+      <div className="auth-switch">
+        <span>Already have an account? </span>
+        <button type="button" className="link-btn" onClick={onBackToLogin}>
+          Sign in
+        </button>
+      </div>
     </form>
   );
 }

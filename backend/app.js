@@ -14,7 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:5137',
+  origin: ['http://localhost:5173'],
   credentials: true,
 }));
 app.post('/signup', async (req, res) => {
@@ -25,11 +25,14 @@ app.post('/signup', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
-  if (user && (await bcrypt.compare(password, user.password))) {
+  const { username, password } = req.body;
+  const user = await User.findOne({ username });
+  if (!user) {
+    return res.status(404).send('User not found. Please signup first!');
+  }
+  if (await bcrypt.compare(password, user.password)) {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-    res.json({ token, username: user.username });
+    res.json({ token, username: user.username, userId: user._id });
   } else {
     res.status(401).send('Invalid credentials');
   }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import "./Interview.css";
 function Interview({ userId }) {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');

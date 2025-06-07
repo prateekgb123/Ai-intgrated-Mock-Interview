@@ -1,0 +1,110 @@
+.auth-form {
+  background: #f7fafd;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(106, 123, 255, 0.14), 0 1.5px 6px rgba(106, 123, 255, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  font-size: 1.13rem;
+  color: #111;
+  max-width: 430px;
+  width: 100%;
+  margin: 2.5rem auto;
+  padding: 2.3rem 2.2rem 1.5rem 2.2rem;
+  box-sizing: border-box;
+}
+.auth-form h2 {
+  margin-bottom: 0.9rem;
+  color: #222;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+.auth-form label {
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 0.2em;
+}
+.auth-form input {
+  padding: 0.68em 1em;
+  border-radius: 8px;
+  border: 1.5px solid #dbeafe;
+  background: #f1f5ff;
+  font-size: 1.08em;
+  margin-bottom: 0.2em;
+  color: #111;
+  transition: border-color 0.23s, background 0.23s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.auth-form input:focus {
+  border-color: #5c43fa;
+  background: #e0e7ff;
+  outline: none;
+  color: #111;
+}
+.auth-form button {
+  margin-top: 1rem;
+  background: linear-gradient(90deg, #e0e7ff 0%, #cad5f7 100%);
+  color: #111;
+  border: none;
+  padding: 0.85em 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.07em;
+  letter-spacing: 0.01em;
+  box-shadow: 0 2px 8px rgba(92, 67, 250, 0.08);
+  transition: background 0.16s, transform 0.15s, color 0.2s;
+  width: 100%;
+}
+.auth-form button:hover:not(:disabled) {
+  background: linear-gradient(90deg, #cad5f7 0%, #e0e7ff 100%);
+  transform: translateY(-2px) scale(1.03);
+  color: #222;
+}
+.auth-form button:disabled {
+  background: #eef1fa;
+  cursor: not-allowed;
+  color: #888;
+}
+.form-msg {
+  padding: 0.55em 0.9em;
+  background: #ffeef4;
+  border: 1.5px solid #ffb7d1;
+  border-radius: 7px;
+  color: #c71d59;
+  margin-bottom: 0.2em;
+  text-align: center;
+  font-size: 0.98em;
+  font-weight: 500;
+}
+.auth-switch {
+  text-align: center;
+  font-size: 0.96em;
+  margin-top: 1.1em;
+  color: #6e7ab5;
+}
+.link-btn {
+  background: none;
+  color: #5c43fa;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: inherit;
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+.link-btn:hover {
+  color: #d72660;
+  text-decoration: underline;
+}
+@media (max-width: 600px) {
+  .auth-form {
+    padding: 1.4rem 0.9rem;
+    max-width: 99vw;
+    margin: 1.1rem auto;
+  }
+}
