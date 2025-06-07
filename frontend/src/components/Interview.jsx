@@ -23,7 +23,7 @@ function Interview() {
     setFeedback('');
 
     try {
-      const res = await fetch('http://localhost:5000/api/analyze', {
+      const res = await fetch('http://localhost:5000/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -33,14 +33,16 @@ function Interview() {
       });
 
       const data = await res.json();
+      console.log("AI response:", data);
+
       if (data.feedback) {
         setFeedback(data.feedback);
       } else {
-        setFeedback("Error: No feedback received.");
+        setFeedback("❌ Error: No feedback received.");
       }
     } catch (error) {
-      console.error("AI feedback failed:", error);
-      setFeedback("Something went wrong while getting feedback.");
+      console.error("❌ AI feedback failed:", error);
+      setFeedback("❌ Something went wrong while getting feedback.");
     }
 
     setLoading(false);

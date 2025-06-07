@@ -1,14 +1,14 @@
 import React from 'react';
 
-export default function Profile({ userId, username }) {
+function Profile({ username }) {
+  // You can fetch and display more user data here
   return (
-    <div className="profile-container">
-      <h2>User Profile</h2>
-      <div className="profile-info">
-        <div><b>User ID:</b> {userId}</div>
-        <div><b>Username:</b> {username}</div>
-        <div>Email update/change coming soon!</div>
-      </div>
+    <div className="interview-card">
+      <h2>Profile</h2>
+      <p><strong>Username:</strong> {username}</p>
+      {/* Add avatar, email, reset password, etc */}
     </div>
   );
 }
+
+export default Profile;

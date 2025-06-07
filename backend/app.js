@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 import User from './models/User.js';
 import connectDB from './config/db.js';
 import Interview from './models/Interviews.js';
-import { OpenAI } from 'openai';
+import { Configuration, OpenAIApi } from 'openai';
 
 dotenv.config();
 connectDB();
@@ -19,9 +19,10 @@ app.use(cors({
   origin: ['http://localhost:5173'],
   credentials: true,
 }));
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
 });
+const openai = new OpenAIApi(configuration);
 
 app.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
@@ -66,26 +67,24 @@ app.get('/history/:userId', async (req, res) => {
   const interviews = await Interview.find({ userId: req.params.userId });
   res.json(interviews);
 });
-app.post('/analyze', async (req, res) => {
+
+app.post('/feedback', async (req, res) => {
   const { question, answer } = req.body;
 
   try {
-    const prompt = `You are an AI interview coach. Evaluate the following response to the question "${question}". Provide feedback on clarity, grammar, structure, and completeness.\n\nAnswer: ${answer}`;
-
-    const chatCompletion = await openai.chat.completions.create({
-      model: 'gpt-4',
+    const response = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
       messages: [
-        { role: "system", content: "You are an expert interview coach." },
-        { role: "user", content: prompt }
+        { role: "system", content: "You are an interview feedback bot." },
+        { role: "user", content: `Question: ${question}\nAnswer: ${answer}` },
       ],
-      max_tokens: 300
     });
 
-    const aiFeedback = chatCompletion.choices[0].message.content;
+    const aiFeedback = response.data.choices[0].message.content;
     res.json({ feedback: aiFeedback });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'AI feedback generation failed' });
+  } catch (error) {
+    console.error("OpenAI error:", error.message);
+    res.status(500).json({ error: "AI feedback failed" });
   }
 });
 const PORT = process.env.PORT || 5000;
