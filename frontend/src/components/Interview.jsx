@@ -34,22 +34,13 @@ function Interview({ userId }) {
   }, [userId]);
 
   return (
-    <div>
+    <div className="interview-card">
       <button onClick={getQuestion}>Get Question</button>
       <p><b>Question:</b> {question}</p>
       <textarea value={answer} onChange={(e) => setAnswer(e.target.value)} />
       <button onClick={submitAnswer}>Submit</button>
       <p><b>Feedback:</b> {feedback}</p>
-      <h3>History</h3>
-      <ul>
-        {history.map((item, index) => (
-          <li key={index}>
-            <strong>Q:</strong> {item.question} <br />
-            <strong>A:</strong> {item.answer} <br />
-            <strong>F:</strong> {item.feedback}
-          </li>
-        ))}
-      </ul>
+     
     </div>
   );
 }

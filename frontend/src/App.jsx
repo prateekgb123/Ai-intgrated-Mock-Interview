@@ -1,61 +1,86 @@
 import React, { useState } from 'react';
-import Login from './components/Login';
 import Signup from './components/Signup';
+import Login from './components/Login';
 import Interview from './components/Interview';
-import Profile from './components/Profile';
-import './App.css';
+import Profile from './components/Profile'; // (You can create this)
+import History from './components/History'; // (You can create this)
 
 function App() {
   const [token, setToken] = useState('');
   const [username, setUsername] = useState('');
   const [userId, setUserId] = useState('');
-  const [showProfile, setShowProfile] = useState(false);
-  const [showSignup, setShowSignup] = useState(false);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [showSignup, setShowSignup] = useState(false); // <-- This was missing
 
-  const handleLogout = () => {
-    setToken('');
-    setUsername('');
-    setUserId('');
-    setShowProfile(false);
-  };
+  if (!token) {
+    return (
+      <div>
+        <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>AI Mock Interview</h1>
+        <div className="auth-container">
+          {!showSignup ? (
+            <>
+              <Login setToken={setToken} setUsername={setUsername} setUserId={setUserId} />
+              <p style={{ marginTop: '1rem' }}>
+                Don&apos;t have an account?{' '}
+                <button
+                  type="button"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#646cff',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    fontWeight: 'bold'
+                  }}
+                  onClick={() => setShowSignup(true)}
+                >
+                  Sign Up
+                </button>
+              </p>
+            </>
+          ) : (
+            <>
+              <Signup />
+              <p style={{ marginTop: '1rem' }}>
+                Already have an account?{' '}
+                <button
+                  type="button"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#646cff',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    fontWeight: 'bold'
+                  }}
+                  onClick={() => setShowSignup(false)}
+                >
+                  Log In
+                </button>
+              </p>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="app-container">
-      <h1>AI Mock Interview</h1>
-      {!token ? (
-        <div className="center-auth-area">
-          <div className="auth-wrapper">
-            {!showSignup ? (
-              <Login
-                setToken={setToken}
-                setUsername={setUsername}
-                setUserId={setUserId}
-                onSignupClick={() => setShowSignup(true)}
-              />
-            ) : (
-              <Signup onBackToLogin={() => setShowSignup(false)} />
-            )}
-          </div>
-        </div>
-      ) : (
-        <>
-          <div className="navbar">
-            <span>Welcome, {username}</span>
-            <button onClick={() => setShowProfile((p) => !p)}>
-              {showProfile ? "Interview" : "Profile"}
-            </button>
-            <button onClick={handleLogout}>Logout</button>
-          </div>
-          <div className="home-main-content">
-            {showProfile ? (
-              <Profile userId={userId} username={username} />
-            ) : (
-              <Interview userId={userId} />
-            )}
-            {/* You can add more home page components here side by side */}
-          </div>
-        </>
-      )}
+    <div className="dashboard-layout">
+      <aside className="sidebar">
+        <h2>{username}</h2>
+        <ul>
+          <li onClick={() => setActiveTab('dashboard')}>Dashboard</li>
+          <li onClick={() => setActiveTab('history')}>History</li>
+          <li onClick={() => setActiveTab('profile')}>Profile</li>
+          <li onClick={() => window.location.reload()}>Logout</li>
+        </ul>
+      </aside>
+      <main className="dashboard-main">
+        {activeTab === 'dashboard' && <Interview userId={userId} />}
+        {activeTab === 'history' && <History userId={userId} />}
+        {activeTab === 'profile' && <Profile userId={userId} username={username} />}
+      </main>
     </div>
   );
 }
