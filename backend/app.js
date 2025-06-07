@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 import User from './models/User.js';
 import connectDB from './config/db.js';
 import Interview from './models/Interviews.js';
-import { Configuration, OpenAIApi } from 'openai';
+import axios from 'axios';
 
 dotenv.config();
 connectDB();
@@ -19,10 +19,8 @@ app.use(cors({
   origin: ['http://localhost:5173'],
   credentials: true,
 }));
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-const openai = new OpenAIApi(configuration);
+
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 app.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
@@ -68,22 +66,37 @@ app.get('/history/:userId', async (req, res) => {
   res.json(interviews);
 });
 
+// ---------- Gemini Feedback Endpoint ----------
 app.post('/feedback', async (req, res) => {
   const { question, answer } = req.body;
 
   try {
-    const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: "You are an interview feedback bot." },
-        { role: "user", content: `Question: ${question}\nAnswer: ${answer}` },
-      ],
-    });
+    const prompt = `You are an interview feedback bot.\nQuestion: ${question}\nAnswer: ${answer}\nGive constructive feedback for the answer.`;
+    const geminiResponse = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        contents: [
+          {
+            parts: [{ text: prompt }]
+          }
+        ]
+      }
+    );
+    // LOG THE FULL RESPONSE HERE:
+    console.log("Gemini raw response:", JSON.stringify(geminiResponse.data, null, 2));
 
-    const aiFeedback = response.data.choices[0].message.content;
+    let aiFeedback = "Sorry, could not generate feedback.";
+    if (
+      geminiResponse.data &&
+      Array.isArray(geminiResponse.data.candidates) &&
+      geminiResponse.data.candidates[0]?.content?.parts?.[0]?.text
+    ) {
+      aiFeedback = geminiResponse.data.candidates[0].content.parts[0].text;
+    }
+
     res.json({ feedback: aiFeedback });
   } catch (error) {
-    console.error("OpenAI error:", error.message);
+    console.error("Gemini API error:", error.message, error.response?.data);
     res.status(500).json({ error: "AI feedback failed" });
   }
 });
