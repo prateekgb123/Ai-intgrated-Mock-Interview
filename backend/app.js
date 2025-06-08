@@ -8,6 +8,8 @@ import User from './models/User.js';
 import connectDB from './config/db.js';
 import Interview from './models/Interviews.js';
 import axios from 'axios';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
 
 dotenv.config();
 connectDB();
@@ -20,7 +22,7 @@ app.use(cors({
   credentials: true,
 }));
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 app.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
@@ -42,7 +44,7 @@ app.post('/login', async (req, res) => {
     res.status(401).send('Invalid credentials');
   }
 });
-const sampleQuestions = [
+const sampleQuestions = [ 
   'Tell me about yourself.',
   'Why do you want this job?',
   'Describe a challenge you faced.',
@@ -66,39 +68,29 @@ app.get('/history/:userId', async (req, res) => {
   res.json(interviews);
 });
 
-// ---------- Gemini Feedback Endpoint ----------
+
 app.post('/feedback', async (req, res) => {
-  const { question, answer } = req.body;
-
   try {
-    const prompt = `You are an interview feedback bot.\nQuestion: ${question}\nAnswer: ${answer}\nGive constructive feedback for the answer.`;
-    const geminiResponse = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        contents: [
-          {
-            parts: [{ text: prompt }]
-          }
-        ]
-      }
-    );
-    // LOG THE FULL RESPONSE HERE:
-    console.log("Gemini raw response:", JSON.stringify(geminiResponse.data, null, 2));
+    const { question, answer } = req.body;
 
-    let aiFeedback = "Sorry, could not generate feedback.";
-    if (
-      geminiResponse.data &&
-      Array.isArray(geminiResponse.data.candidates) &&
-      geminiResponse.data.candidates[0]?.content?.parts?.[0]?.text
-    ) {
-      aiFeedback = geminiResponse.data.candidates[0].content.parts[0].text;
+    if (!question || !answer) {
+      return res.status(400).json({ error: "Please provide question and answer." });
     }
 
-    res.json({ feedback: aiFeedback });
+    const prompt = `You are an AI interviewer. Provide constructive and detailed feedback on the following response.\n\nQuestion: ${question}\nAnswer: ${answer}\n\nFeedback:`;
+
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    const result = await model.generateContent(prompt);
+    const feedback = result.response.text().trim();
+
+    res.json({ feedback });
+
   } catch (error) {
-    console.error("Gemini API error:", error.message, error.response?.data);
-    res.status(500).json({ error: "AI feedback failed" });
+    console.error('Gemini feedback error:', error);
+    res.status(500).json({ error: 'Failed to generate feedback' });
   }
 });
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
