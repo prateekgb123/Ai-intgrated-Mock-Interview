@@ -1,80 +1,90 @@
-/* --- Global styles --- */
+/* ===== Variables for colors & spacing ===== */
+:root {
+  --color-primary: #5c43fa;
+  --color-primary-light: #7a63ff;
+  --color-primary-dark: #4a36d8;
+  --color-accent: #f0e130;
+  --color-bg: #f4f6ff;
+  --color-bg-light: #fff;
+  --color-text: #111;
+  --color-text-light: #555;
+  --color-error-bg: #ffeef2;
+  --color-error-border: #f5a5c0;
+  --color-error-text: #c41c57;
+  --radius-lg: 12px;
+  --radius-md: 10px;
+  --spacing-sm: 0.75rem;
+  --spacing-md: 1.5rem;
+  --shadow-light: rgba(92, 67, 250, 0.1);
+  --shadow-strong: rgba(92, 67, 250, 0.4);
+  --transition-fast: 0.25s ease;
+  --transition-medium: 0.3s ease;
+}
+
+/* ===== Reset & global styles ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html, body {
-  min-height: 100vh;
-  width: 100%;
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
-  color: #111;
-  background: linear-gradient(135deg, #e0e7ff 0%, #fff 100%);
-  box-sizing: border-box;
-  overflow-x: hidden;
-}
-
-*, *::before, *::after {
-  box-sizing: inherit;
-}
-
-/* --- App container --- */
-.app-container {
   min-height: 100vh;
   width: 100%;
-  padding: 0;
-  background: transparent;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+  color: var(--color-text);
+  background: linear-gradient(135deg, #e0e7ff 0%, #fff 100%);
   overflow-x: hidden;
 }
 
-/* --- Center auth form area --- */
-.center-auth-area {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 70vh;
-}
-
-/* --- Headers --- */
-h1 {
-  font-size: 2.4em;
-  text-align: center;
-  color: #111;
-  font-weight: bold;
-  margin: 2rem 0 2rem 0;
-  letter-spacing: 0.02em;
-  font-family: 'Segoe UI', Arial, sans-serif;
-}
-
-/* --- Dashboard layout --- */
+/* ===== App Layout ===== */
+.app-container,
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
-  background: #f4f6ff;
-  color: #111;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  overflow-x: hidden;
 }
 
-/* --- Sidebar --- */
+.app-container {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.dashboard-layout {
+  flex-direction: row;
+}
+
+/* ===== Sidebar ===== */
 .sidebar {
   width: 220px;
-  background: #5c43fa;
-  color: white;
-  padding: 2rem 1.5rem;
-  box-sizing: border-box;
+  background: linear-gradient(180deg, var(--color-primary), var(--color-primary-light));
+  color: #fff;
+  padding: var(--spacing-md) 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.6rem;
+  gap: var(--spacing-md);
   font-weight: 600;
   user-select: none;
+  transition: background var(--transition-medium);
+}
+
+.sidebar:hover {
+  background: linear-gradient(180deg, var(--color-primary-dark), var(--color-primary));
 }
 
 .sidebar h2 {
-  margin: 0 0 1.5rem 0;
-  font-weight: 700;
-  font-size: 1.6rem;
-  letter-spacing: 0.03em;
+  margin: 0 0 1rem 0;
+  font-weight: 800;
+  font-size: 1.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  text-shadow: 0 0 6px rgba(240, 225, 48, 0.8);
+  user-select: none;
 }
 
 .sidebar ul {
@@ -86,70 +96,109 @@ h1 {
 
 .sidebar ul li {
   cursor: pointer;
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  transition: background 0.25s ease, color 0.25s ease;
+  padding: var(--spacing-sm) 1rem;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast), color var(--transition-fast), transform 0.15s ease;
 }
 
 .sidebar ul li:hover,
-.sidebar ul li.active {
-  background: #7a63ff;
-  color: white;
-  box-shadow: 0 4px 12px rgba(122, 99, 255, 0.4);
+.sidebar ul li:focus-visible {
+  background-color: var(--color-primary-light);
+  box-shadow: 0 6px 16px var(--shadow-strong);
+  transform: scale(1.05);
+  outline: none;
+  color: #fff;
 }
 
-/* --- Main dashboard area --- */
+.sidebar ul li.active {
+  background-color: var(--color-primary-light);
+  box-shadow: 0 4px 12px var(--shadow-strong);
+  border-left: 5px solid var(--color-accent);
+  padding-left: calc(1rem - 5px);
+  font-weight: 700;
+}
+
+/* ===== Main content ===== */
 .dashboard-main {
   position: relative;
   flex-grow: 1;
-  background: #fff;
-  padding: 3rem 3rem 2rem 3rem;
-  overflow-y: auto;
+  background-color: #e0e3ff;
+  padding: 3rem;
   box-sizing: border-box;
-  min-height: 100vh;
+  overflow-y: auto;
+  background-image: none;
+  animation: fadeInUp 0.6s ease forwards;
+  opacity: 0;
+  transform: translateY(15px);
 }
 
-/* --- Logout button top right --- */
-.logout-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Header Bar (Title + Logout Button) ===== */
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f0f4ff;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(92, 67, 250, 0.1);
+  margin-bottom: 2rem;
+}
+
+.header-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  margin: 0;
+}
+
+.dashboard-main .logout-btn {
+  position: static;
+  margin-left: auto;
   background-color: #e53e3e;
-  color: white;
+  color: #fff;
   border: none;
   padding: 0.5rem 1.1rem;
   font-weight: 600;
   font-size: 0.9rem;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   box-shadow: 0 3px 8px rgba(229, 62, 62, 0.5);
-  transition: background-color 0.3s ease;
-  z-index: 10;
+  transition: background-color var(--transition-medium), transform 0.15s ease;
 }
 
-.logout-btn:hover {
+.dashboard-main .logout-btn:hover,
+.dashboard-main .logout-btn:focus-visible {
   background-color: #c53030;
+  transform: translateY(-2px);
+  outline: none;
 }
 
-/* --- Auth container --- */
+/* ===== Auth container ===== */
 .auth-container {
   max-width: 420px;
   margin: 0 auto;
-  background: #f7fafd;
+  background-color: #f7fafd;
   border-radius: 13px;
   box-shadow: 0 1px 10px rgba(106, 123, 255, 0.07);
-  padding: 1rem 1rem 1rem 1rem;
+  padding: 1rem;
   font-size: 1.1em;
-  color: #111;
+  color: var(--color-text);
   box-sizing: border-box;
   position: relative;
 }
 
-/* --- Interview container and cards --- */
+/* ===== Interview container and cards ===== */
 .interview-container {
-  background: #f9fbff;
-  border-radius: 14px;
-  box-shadow: 0 10px 25px rgba(92, 67, 250, 0.15);
+  background-color: #f9fbff;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 25px var(--shadow-strong);
   padding: 2.5rem;
   max-width: 760px;
   margin: 0 auto;
@@ -158,19 +207,24 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 1.6rem;
+  transition: box-shadow 0.3s ease;
+}
+
+.interview-container:hover {
+  box-shadow: 0 14px 36px var(--shadow-strong);
 }
 
 /* Question card */
 .interview-question {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(92, 67, 250, 0.1);
+  background-color: #fff;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 6px 18px var(--shadow-light);
   padding: 1.8rem 2rem;
-  transition: box-shadow 0.3s ease;
+  transition: box-shadow var(--transition-medium);
 }
 
 .interview-question:hover {
-  box-shadow: 0 12px 32px rgba(92, 67, 250, 0.2);
+  box-shadow: 0 12px 32px var(--shadow-strong);
 }
 
 .interview-question h3 {
@@ -181,40 +235,41 @@ h1 {
 
 .interview-question p {
   line-height: 1.5;
-  color: #555;
+  color: var(--color-text-light);
 }
 
 /* Interview buttons */
 .interview-btn {
-  background: linear-gradient(90deg, #5c43fa 0%, #7a63ff 100%);
-  color: white;
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: #fff;
   padding: 0.75rem 1.3rem;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   font-weight: 600;
   font-size: 1rem;
   border: none;
   cursor: pointer;
   align-self: flex-start;
-  box-shadow: 0 4px 14px rgba(92, 67, 250, 0.4);
-  transition: background 0.3s ease, transform 0.15s ease;
+  box-shadow: 0 4px 14px var(--shadow-strong);
+  transition: background var(--transition-medium), transform 0.15s ease;
 }
 
-.interview-btn:hover {
-  background: linear-gradient(90deg, #7a63ff 0%, #5c43fa 100%);
+.interview-btn:hover,
+.interview-btn:focus-visible {
+  background: linear-gradient(90deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
   transform: translateY(-2px) scale(1.03);
+  outline: none;
 }
 
-/* --- Responsive --- */
+/* ===== Responsive ===== */
 @media (max-width: 1000px) {
   .dashboard-layout {
     flex-direction: column;
   }
   .sidebar {
     width: 100%;
-    display: flex;
+    padding: 1rem;
     justify-content: center;
     gap: 1rem;
-    padding: 1rem;
   }
   .sidebar h2 {
     display: none;
@@ -244,12 +299,24 @@ h1 {
     font-size: 1.5em;
     margin: 1rem 0;
   }
-  .logout-btn {
-    top: 10px;
-    right: 10px;
+
+  .header-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
+  .header-title {
+    font-size: 1.4rem;
+  }
+
+  .dashboard-main .logout-btn {
+    align-self: flex-end;
+    margin-left: 0;
     padding: 0.45rem 0.9rem;
     font-size: 0.85rem;
   }
+
   .interview-container {
     padding: 1.5rem;
     max-width: 95vw;

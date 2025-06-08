@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import Signup from './components/Signup';
 import Login from './components/Login';
 import Interview from './components/Interview';
-import Profile from './components/Profile'; // (You can create this)
-import History from './components/History'; // (You can create this)
-import './App.css'; // Import your CSS styles
+import Profile from './components/Profile';
+import History from './components/History';
+import './App.css';
+
 function App() {
   const [token, setToken] = useState('');
   const [username, setUsername] = useState('');
@@ -66,9 +67,12 @@ function App() {
       </aside>
 
       <main className="dashboard-main">
-        <button className="logout-btn" onClick={handleLogout}>
-          Logout
-        </button>
+        <div className="header-bar">
+          <h2 className="header-title">Online Mock Interview</h2>
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
 
         {activeTab === 'dashboard' && <Interview userId={userId} />}
         {activeTab === 'history' && <History userId={userId} />}

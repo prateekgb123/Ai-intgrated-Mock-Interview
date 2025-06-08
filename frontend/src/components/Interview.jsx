@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-// Helper for point-wise feedback rendering
 function renderPointwise(feedback) {
   if (!feedback) return null;
   const points = feedback
@@ -25,7 +24,6 @@ function renderPointwise(feedback) {
   );
 }
 
-// Rounds definition
 const ROUNDS = [
   { key: "aptitude", label: "Aptitude Round" },
   { key: "coding", label: "Coding Round" },
@@ -36,9 +34,9 @@ const ROUNDS = [
 const QUESTIONS_PER_ROUND = 6;
 
 function OnlineMockInterview() {
-  const [round, setRound] = useState(0); // 0: Aptitude, 1: Coding, 2: Technical, 3: HR
-  const [questions, setQuestions] = useState([[], [], [], []]); // Array of 4 arrays, each round
-  const [current, setCurrent] = useState(0); // current question in current round
+  const [round, setRound] = useState(0);
+  const [questions, setQuestions] = useState([[], [], [], []]);
+  const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState([[], [], [], []]);
   const [feedbacks, setFeedbacks] = useState([[], [], [], []]);
   const [loading, setLoading] = useState(true);
@@ -46,21 +44,16 @@ function OnlineMockInterview() {
   const [allFeedback, setAllFeedback] = useState(null);
   const [result, setResult] = useState(null);
 
-  // Fetch questions for all rounds on mount
   useEffect(() => {
     async function fetchRoundQuestions(roundKey) {
-      // Example API: GET /questions?round=aptitude&count=6
-      // This should be replaced by your Gemini API endpoint
       const url = `http://localhost:5000/questions?round=${roundKey}&count=${QUESTIONS_PER_ROUND}`;
       try {
         const res = await fetch(url);
         const data = await res.json();
-        // Standardize structure
         return data.questions && Array.isArray(data.questions)
           ? data.questions.slice(0, QUESTIONS_PER_ROUND)
           : [];
       } catch {
-        // Fallback default questions for each round
         switch (roundKey) {
           case "aptitude":
             return [
@@ -103,7 +96,7 @@ function OnlineMockInterview() {
         }
       }
     }
-    // Fetch all rounds in parallel
+
     (async () => {
       setLoading(true);
       const results = await Promise.all(ROUNDS.map(r => fetchRoundQuestions(r.key)));
@@ -114,7 +107,6 @@ function OnlineMockInterview() {
     })();
   }, []);
 
-  // Handles answer change for textarea
   function handleChange(e) {
     const val = e.target.value;
     setAnswers(a => {
@@ -124,7 +116,6 @@ function OnlineMockInterview() {
     });
   }
 
-  // Handles MCQ select
   function handleMCQ(opt) {
     setAnswers(a => {
       const copy = a.map(arr => [...arr]);
@@ -133,7 +124,6 @@ function OnlineMockInterview() {
     });
   }
 
-  // Go to next question or next round
   function handleNext() {
     if (current < QUESTIONS_PER_ROUND - 1) {
       setCurrent(current + 1);
@@ -146,7 +136,6 @@ function OnlineMockInterview() {
     }
   }
 
-  // Restart interview
   function handleRestart() {
     setAnswers(questions.map(qs => Array(qs.length).fill("")));
     setFeedbacks(questions.map(qs => Array(qs.length).fill("")));
@@ -157,12 +146,9 @@ function OnlineMockInterview() {
     setResult(null);
   }
 
-  // After all rounds, get feedback for each round in parallel and summary result
   async function handleGetAllFeedback() {
     setLoading(true);
     try {
-      // Call a feedback endpoint that accepts all answers at once for detailed feedback & selection
-      // Example expected API: POST /interview/feedback { answers: [[...],[...],[...],[...]], questions: [[...],[...],[...],[...]] }
       const res = await fetch("http://localhost:5000/interview/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -176,12 +162,10 @@ function OnlineMockInterview() {
         })
       });
       const data = await res.json();
-      // data = { feedbacks: [[...],[...],[...],[...]], result: "Selected" }
       if (data.feedbacks) setFeedbacks(data.feedbacks);
       if (data.result) setResult(data.result);
       setAllFeedback(data.feedbacks);
     } catch {
-      // fallback: generic feedback and random selection
       setFeedbacks([
         questions[0].map(() => "Feedback: Good attempt."),
         questions[1].map(() => "Feedback: Satisfactory."),
@@ -193,60 +177,46 @@ function OnlineMockInterview() {
     setLoading(false);
   }
 
-  // Rendering
-  if (loading) {
-    return <div style={styles.container}><h2>Loading questions...</h2></div>;
+  if (loading) return <div style={styles.container}><h2>Loading questions...</h2></div>;
+
+  if (completed) {
+    return (
+      <div style={styles.container}>
+        <h2 style={styles.header}>Interview Complete!</h2>
+        <div style={styles.card}>
+          <h3>Final Result: {result}</h3>
+          {feedbacks.map((roundFeedback, roundIdx) => (
+            <div key={roundIdx}>
+              <h4>{ROUNDS[roundIdx].label}</h4>
+              <ol>
+                {roundFeedback.map((fb, qIdx) => (
+                  <li key={qIdx}>{Array.isArray(fb) ? fb.join(" ") : fb}</li>
+                ))}
+              </ol>
+            </div>
+          ))}
+          <button onClick={handleRestart} style={styles.button}>Restart Interview</button>
+        </div>
+      </div>
+    );
   }
 
-if (completed) {
-  // Group feedbacks into rounds (each round has 6 questions)
-  const feedbacksToShow = Array.isArray(feedbacks) && feedbacks.length === 24
-    ? [0, 1, 2, 3].map(i => feedbacks.slice(i * 6, (i + 1) * 6))
-    : feedbacks;
-
-  return (
-    <div style={styles.container}>
-      <h2 style={styles.header}>Interview Complete!</h2>
-      <div style={styles.card}>
-        <h3>Final Result: {result}</h3>
-        {feedbacksToShow.map((roundFeedback, roundIdx) => (
-          <div key={roundIdx}>
-            <h4>{ROUNDS[roundIdx].label}</h4>
-            <ol>
-              {roundFeedback.map((fb, qIdx) => (
-                <li key={qIdx}>
-                  {Array.isArray(fb) ? fb.join(" ") : fb}
-                </li>
-              ))}
-            </ol>
-          </div>
-        ))}
-        <button onClick={handleRestart} style={styles.button}>
-          Restart Interview
-        </button>
-      </div>
-    </div>
-  );
-}
-
   const q = questions[round][current];
-  const progress =
-    round * QUESTIONS_PER_ROUND + current + 1;
+  const progress = round * QUESTIONS_PER_ROUND + current + 1;
   const total = ROUNDS.length * QUESTIONS_PER_ROUND;
   const progressPercent = Math.round((progress / total) * 100);
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.header}>Online Mock Interview</h2>
+      <div style={styles.roundHeader}>
+        {ROUNDS[round].label}: Question {current + 1} of {QUESTIONS_PER_ROUND}
+      </div>
       <div style={styles.progressBarContainer}>
         <div style={{ ...styles.progressBar, width: `${progressPercent}%` }} />
-        <span style={styles.progressText}>
-          {ROUNDS[round].label}: Question {current + 1} of {QUESTIONS_PER_ROUND}
-        </span>
       </div>
+
       <div style={styles.card} className="animated-fade">
         <p style={styles.question}><strong>Question:</strong> {q.question}</p>
-        {/* Question type rendering */}
         {q.type === "mcq" ? (
           <div style={styles.mcqGroup}>
             {q.options.map(opt => (
@@ -264,18 +234,9 @@ if (completed) {
               </button>
             ))}
           </div>
-        ) : q.type === "code" ? (
-          <textarea
-            rows={7}
-            placeholder="Write your code here..."
-            value={answers[round][current]}
-            onChange={handleChange}
-            style={styles.textarea}
-            disabled={loading}
-          />
         ) : (
           <textarea
-            rows={5}
+            rows={q.type === "code" ? 7 : 5}
             placeholder="Type your answer here..."
             value={answers[round][current]}
             onChange={handleChange}
@@ -283,7 +244,6 @@ if (completed) {
             disabled={loading}
           />
         )}
-        {/* Next */}
         <button
           onClick={handleNext}
           disabled={loading || !answers[round][current]?.trim()}
@@ -293,10 +253,11 @@ if (completed) {
             ? 'Finish Interview'
             : 'Next Question'}
         </button>
-        <div style={{marginTop:'1rem', fontSize:'0.98rem', color:'#888'}}>
+        <div style={{ marginTop: '1rem', fontSize: '0.98rem', color: '#888' }}>
           Feedback will be provided after completion of all rounds.
         </div>
       </div>
+
       <style>{`
         .animated-fade { animation: fadeIn 0.7s;}
         @keyframes fadeIn {from{opacity:0;transform:translateY(30px);} to{opacity:1;transform:none;}}
@@ -307,13 +268,34 @@ if (completed) {
 
 const styles = {
   container: {
-    padding: '2rem',
+    paddingTop: '2rem',
+    paddingLeft: '1rem',
+    paddingRight: '1rem',
     fontFamily: 'Arial, sans-serif',
+    textAlign: 'center',
+    minHeight: '100vh',
+  },
+  roundHeader: {
+    fontSize: '1.4rem',
+    fontWeight: '600',
+    marginBottom: '0.75rem',
+    color: '#222',
     textAlign: 'center'
   },
-  header: {
-    fontSize: '2rem',
-    marginBottom: '1rem'
+  progressBarContainer: {
+    width: '100%',
+    maxWidth: '600px',
+    margin: '0 auto 1.5rem auto',
+    background: '#e6e6e6',
+    borderRadius: '10px',
+    height: '14px',
+    position: 'relative'
+  },
+  progressBar: {
+    height: '100%',
+    background: 'linear-gradient(90deg, #007bff, #00c6ff)',
+    borderRadius: '10px',
+    transition: 'width 0.5s'
   },
   card: {
     maxWidth: '600px',
@@ -345,37 +327,6 @@ const styles = {
     color: '#fff',
     cursor: 'pointer'
   },
-  feedbackBox: {
-    marginTop: '1rem',
-    padding: '1rem',
-    backgroundColor: '#fff',
-    border: '1px solid #ccc',
-    borderRadius: '8px',
-    textAlign: 'left'
-  },
-  progressBarContainer: {
-    width: '100%',
-    maxWidth: '600px',
-    margin: '0 auto 1.5rem auto',
-    background: '#e6e6e6',
-    borderRadius: '10px',
-    height: '14px',
-    position: 'relative'
-  },
-  progressBar: {
-    height: '100%',
-    background: 'linear-gradient(90deg, #007bff, #00c6ff)',
-    borderRadius: '10px',
-    transition: 'width 0.5s'
-  },
-  progressText: {
-    position: 'absolute',
-    top: '18px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    fontSize: '0.97rem',
-    color: '#333'
-  },
   mcqGroup: {
     display: 'flex',
     flexDirection: 'column',
@@ -388,7 +339,6 @@ const styles = {
     padding: '0.75rem 1rem',
     fontSize: '1rem',
     cursor: 'pointer',
-    marginBottom: '0.5rem',
     transition: 'background 0.2s, color 0.2s'
   }
 };
