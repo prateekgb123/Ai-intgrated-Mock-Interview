@@ -12,53 +12,20 @@ function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showSignup, setShowSignup] = useState(false); // <-- This was missing
 
-  if (!token) {
+   if (!token) {
     return (
       <div>
         <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>AI Mock Interview</h1>
         <div className="auth-container">
           {!showSignup ? (
-            <>
-              <Login setToken={setToken} setUsername={setUsername} setUserId={setUserId} />
-              <p style={{ marginTop: '1rem' }}>
-                Don&apos;t have an account?{' '}
-                <button
-                  type="button"
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#646cff',
-                    cursor: 'pointer',
-                    textDecoration: 'underline',
-                    fontWeight: 'bold'
-                  }}
-                  onClick={() => setShowSignup(true)}
-                >
-                  Sign Up
-                </button>
-              </p>
-            </>
+            <Login
+              setToken={setToken}
+              setUsername={setUsername}
+              setUserId={setUserId}
+              onSignupClick={() => setShowSignup(true)}
+            />
           ) : (
-            <>
-              <Signup />
-              <p style={{ marginTop: '1rem' }}>
-                Already have an account?{' '}
-                <button
-                  type="button"
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#646cff',
-                    cursor: 'pointer',
-                    textDecoration: 'underline',
-                    fontWeight: 'bold'
-                  }}
-                  onClick={() => setShowSignup(false)}
-                >
-                  Log In
-                </button>
-              </p>
-            </>
+            <Signup onBackToLogin={() => setShowSignup(false)} />
           )}
         </div>
       </div>
