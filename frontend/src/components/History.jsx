@@ -1,26 +1,52 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 
 function History({ userId }) {
   const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
   useEffect(() => {
-    if (userId) {
-      axios.get(`http://localhost:5000/history/${userId}`)
-        .then(res => setHistory(res.data));
-    }
+    if (!userId) return;
+    setLoading(true);
+    setError('');
+    fetch(`http://localhost:5000/interview/history/${userId}`)
+      .then(res => res.json())
+      .then(data => {
+        setHistory(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError('Failed to fetch interview history.');
+        setLoading(false);
+      });
   }, [userId]);
+
+  if (loading) return <div>Loading history...</div>;
+  if (error) return <div style={{ color: 'red' }}>{error}</div>;
+
   return (
-    <div className="interview-card">
-      <h2>History</h2>
-      <ul>
-        {history.map((item, idx) => (
-          <li key={idx} style={{ marginBottom: "1rem" }}>
-            <strong>Q:</strong> {item.question} <br />
-            <strong>A:</strong> {item.answer} <br />
-            <strong>F:</strong> {item.feedback}
-          </li>
-        ))}
-      </ul>
+    <div>
+      <h2>Interview History</h2>
+      {history.length === 0 ? (
+        <div>No interviews found.</div>
+      ) : (
+        <ul style={{ listStyle: 'none', padding: 0 }}>
+          {history.map(h => (
+            <li key={h._id} style={{
+              border: '1px solid #ddd',
+              borderRadius: 8,
+              margin: '1em 0',
+              padding: '1em',
+              background: '#f9f9f9'
+            }}>
+              <b>Date:</b> {new Date(h.date).toLocaleString()}<br />
+              <b>Result:</b> {h.result}
+              {/* Optionally show rounds or feedbacks if you want: */}
+              {/* <pre>{JSON.stringify(h.rounds, null, 2)}</pre> */}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
