@@ -12,6 +12,7 @@ function App() {
   const [userId, setUserId] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showSignup, setShowSignup] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
     setToken('');
@@ -19,6 +20,8 @@ function App() {
     setUserId('');
     setActiveTab('dashboard');
   };
+
+  const closeSidebar = () => setSidebarOpen(false);
 
   if (!token) {
     return (
@@ -42,36 +45,59 @@ function App() {
 
   return (
     <div className="dashboard-layout">
-      <aside className="sidebar">
+      <button
+        className={`hamburger${sidebarOpen ? ' open' : ''}`}
+        id="hamburger-btn"
+        aria-label="Open menu"
+        onClick={() => setSidebarOpen((v) => !v)}
+        type="button"
+      >
+        <span />
+        <span />
+        <span />
+      </button>
+
+      <aside className={`sidebar${sidebarOpen ? ' open' : ''}`} id="sidebar">
         <h2>{username}</h2>
         <ul>
           <li
             className={activeTab === 'dashboard' ? 'active' : ''}
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => { setActiveTab('dashboard'); setSidebarOpen(false); }}
           >
             Dashboard
           </li>
           <li
             className={activeTab === 'history' ? 'active' : ''}
-            onClick={() => setActiveTab('history')}
+            onClick={() => { setActiveTab('history'); setSidebarOpen(false); }}
           >
             History
           </li>
           <li
             className={activeTab === 'profile' ? 'active' : ''}
-            onClick={() => setActiveTab('profile')}
+            onClick={() => { setActiveTab('profile'); setSidebarOpen(false); }}
           >
             Profile
           </li>
         </ul>
       </aside>
+      <div
+        className="sidebar-overlay"
+        id="sidebar-overlay"
+        style={{
+          display: sidebarOpen ? 'block' : 'none',
+        }}
+        onClick={closeSidebar}
+      />
 
       <main className="dashboard-main">
         <div className="header-bar">
           <h2 className="header-title">Online Mock Interview</h2>
-          <button className="logout-btn" onClick={handleLogout}>
-            Logout
-          </button>
+          <div className="header-user">
+            <span className="header-username">{username}</span>
+            <button className="logout-btn" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
         </div>
 
         {activeTab === 'dashboard' && <Interview userId={userId} />}

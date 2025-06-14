@@ -41,8 +41,7 @@ function History({ userId }) {
             }}>
               <b>Date:</b> {new Date(h.date).toLocaleString()}<br />
               <b>Result:</b> {h.result}
-              {/* Optionally show rounds or feedbacks if you want: */}
-              {/* <pre>{JSON.stringify(h.rounds, null, 2)}</pre> */}
+              
             </li>
           ))}
         </ul>

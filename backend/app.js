@@ -21,7 +21,7 @@ app.use(cors({
 const QUESTIONS_PER_ROUND = 6; 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// ---- User Authentication ----
+
 app.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
   const user = new User({ username, email, password });
@@ -43,7 +43,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// ---- Default Questions for Fallback & to provide correct answers to Gemini ----
+
 const defaultQuestions = {
   aptitude: [
     { type: "mcq", question: "If 3x + 5 = 20, what is x?", options: ["5", "4", "3", "15"], correct: "5" },
@@ -92,7 +92,7 @@ app.get('/questions', async (req, res) => {
 
 app.post('/interview/feedback', async (req, res) => {
   try {
-    const { rounds, userId } = req.body; // <-- Accept userId from frontend!
+    const { rounds, userId } = req.body; 
     const roundsWithCorrect = rounds.map(r => {
       const correctArray = (defaultQuestions[r.round] || []).map(q => q.correct || null);
       return { ...r, correct: correctArray };
@@ -133,9 +133,6 @@ app.post('/interview/feedback', async (req, res) => {
       }
     }
 
-    // Gemini returns: feedbacks = [ [feedback1, correct1], ...24 ]
-    // We want: feedbacks = [ [q1,...q6], [q7,...q12], [q13,...q18], [q19,...q24] ]
-    // Each entry: "Your Answer: ...\nCorrect Answer: ..."
     let feedbacks = responseJSON.feedbacks;
     if (Array.isArray(feedbacks) && feedbacks.length === 24 && Array.isArray(feedbacks[0])) {
       const formatted = feedbacks.map(fbArr =>
@@ -147,9 +144,7 @@ app.post('/interview/feedback', async (req, res) => {
       }
     }
 
-    // -------------------------
-    // Save result in history
-    // -------------------------
+   
     if (userId) {
       await InterviewHistory.create({
         userId,
