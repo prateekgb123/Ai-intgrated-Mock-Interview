@@ -105,10 +105,10 @@ body, html {
 }
 
 .sidebar {
-  width: 220px;
+  width: 280px;
   background: linear-gradient(180deg, var(--color-primary), var(--color-primary-light));
   color: #fff;
-  padding: var(--spacing-md) 1.5rem;
+  padding: 2rem 2rem;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
@@ -117,6 +117,7 @@ body, html {
   transition: background var(--transition-medium), left 0.3s;
   position: relative;
   z-index: 20;
+  font-size: 1.05rem;
 }
 .sidebar h2 {
   margin: 0 0 1rem 0;
@@ -140,9 +141,9 @@ body, html {
 .sidebar ul li,
 .sidebar ul li.active {
   cursor: pointer;
-  padding: 0.44rem 1rem;
+  padding: 0.65rem 1.2rem;
   border-radius: var(--radius-md);
-  font-size: 0.98rem;
+  font-size: 1.05rem;
   margin-bottom: 0;
   min-height: 0;
   height: auto;
@@ -164,7 +165,7 @@ body, html {
   color: var(--color-accent);
   border-left: 3px solid var(--color-accent);
   font-weight: 700;
-  padding-left: calc(1rem - 3px);
+  padding-left: calc(1.2rem - 3px);
 }
 
 .dashboard-main {
@@ -174,7 +175,6 @@ body, html {
   padding: 3rem;
   box-sizing: border-box;
   overflow-y: auto;
-  background-image: none;
   animation: fadeInUp 0.6s ease forwards;
   opacity: 0;
   transform: translateY(15px);
@@ -214,12 +214,6 @@ body, html {
   align-items: center;
   gap: 0.8rem;
 }
-.header-username {
-  font-weight: 600;
-  color: #222;
-  font-size: 1rem;
-  white-space: nowrap;
-}
 .logout-btn {
   background-color: #e53e3e;
   color: #fff;
@@ -239,24 +233,19 @@ body, html {
   outline: none;
 }
 
-/* Responsive sidebar menu: COMPACT MOBILE BUTTONS */
+/* Responsive */
 @media (max-width: 1000px) {
   .hamburger {
     display: flex;
   }
   .sidebar {
     position: fixed;
-    left: -260px;
+    left: -85vw;
     top: 0;
     height: 100vh;
-    width: 220px;
-    z-index: 20;
-    padding: 1.5rem 1rem;
-    transition: left 0.3s;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.08);
-    background: linear-gradient(180deg, var(--color-primary), var(--color-primary-light));
-    flex-direction: column;
-    gap: 1.5rem;
+    width: 80vw;
+    max-width: 320px;
+    padding: 2rem 1.5rem;
   }
   .sidebar.open {
     left: 0;
@@ -271,31 +260,10 @@ body, html {
   .sidebar.open ~ .sidebar-overlay {
     display: block;
   }
-  .sidebar h2 {
-    display: block;
-  }
-  .sidebar ul {
-    gap: 0 !important;
-  }
   .sidebar ul li,
   .sidebar ul li.active {
-    padding: 0.44rem 1rem;
-    font-size: 0.98rem;
-    border-radius: 8px;
-    margin-bottom: 0;
-    min-height: 0;
-    height: auto;
-    line-height: 1 !important;
-    border-left: 3px solid transparent;
-    flex-grow: 0 !important;
-    flex-shrink: 0 !important;
-  }
-  .sidebar ul li.active {
-    border-left: 3px solid var(--color-accent) !important;
-    padding-left: calc(1rem - 3px) !important;
-    background-color: var(--color-primary-light) !important;
-    color: var(--color-accent) !important;
-    font-weight: 700 !important;
+    padding: 0.65rem 1.1rem !important;
+    font-size: 1.05rem !important;
   }
 }
 
@@ -306,36 +274,18 @@ body, html {
     padding-right: 0.2rem;
   }
   .sidebar {
-    width: 75vw;
-    max-width: 270px;
-    padding: 1.2rem 0.5rem;
-    left: -80vw;
+    width: 85vw;
+    max-width: 340px;
+    padding: 1.6rem 1rem;
+    left: -90vw;
   }
   .sidebar.open {
     left: 0;
   }
-  .sidebar ul {
-    gap: 0 !important;
-  }
   .sidebar ul li,
   .sidebar ul li.active {
-    padding: 0rem 0.8rem !important; /* vertical padding is 0, horizontal only */
-    font-size: 0.92rem !important;
-    border-radius: 8px !important;
-    margin-bottom: 0 !important;
-    min-height: 0 !important;
-    height: auto !important;
-    line-height: 1 !important;
-    border-left: 3px solid transparent !important;
-    flex-grow: 0 !important;
-    flex-shrink: 0 !important;
-  }
-  .sidebar ul li.active {
-    border-left: 3px solid var(--color-accent) !important;
-    padding-left: calc(0.8rem - 3px) !important;
-    background-color: var(--color-primary-light) !important;
-    color: var(--color-accent) !important;
-    font-weight: 700 !important;
+    padding: 0.6rem 1rem !important;
+    font-size: 1.02rem !important;
   }
   .header-bar {
     padding: 0.7rem 0.2rem;
@@ -346,36 +296,14 @@ body, html {
   .header-title {
     font-size: 1.75rem;
   }
-  .header-username {
-    font-size: 0.97rem;
-  }
   .logout-btn {
     padding: 0.4rem 0.7rem;
     font-size: 0.86rem;
     border-radius: 6px;
   }
-
   .dashboard-main {
     padding: 0.5rem;
     gap: 0.5rem;
-    height: 100vh;
-    overflow-y: auto;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
-  }
-
-  .dashboard-main > *:not(.header-bar) {
-    flex: 0 0 auto;
-    max-height: calc(100vh - 150px);
-    overflow-y: auto !important;
-    min-height: unset !important;
-    padding: 1rem !important;
-    margin-bottom: 0.5rem !important;
-    border-radius: 7px !important;
-    font-size: 0.97rem !important;
-    background: #fff;
-    box-shadow: 0 1px 4px rgba(60,70,255,0.06) !important;
   }
 }
 
@@ -386,36 +314,18 @@ body, html {
     padding-right: 0.1rem;
   }
   .sidebar {
-    width: 85vw;
-    max-width: 99vw;
-    padding: 0.7rem 0.2rem;
-    left: -90vw;
+    width: 90vw;
+    max-width: 95vw;
+    padding: 1.2rem 0.9rem;
+    left: -100vw;
   }
   .sidebar.open {
     left: 0;
   }
-  .sidebar ul {
-    gap: 0 !important;
-  }
   .sidebar ul li,
   .sidebar ul li.active {
-    padding: 0rem 0.28rem !important; /* vertical padding is 0, horizontal only */
-    font-size: 0.78rem !important;
-    border-radius: 6px !important;
-    margin-bottom: 0 !important;
-    min-height: 0 !important;
-    height: auto !important;
-    line-height: 1 !important;
-    border-left: 2px solid transparent !important;
-    flex-grow: 0 !important;
-    flex-shrink: 0 !important;
-  }
-  .sidebar ul li.active {
-    background-color: var(--color-primary-light) !important;
-    color: var(--color-accent) !important;
-    border-left: 2px solid var(--color-accent) !important;
-    font-weight: 700 !important;
-    padding-left: calc(0.28rem - 2px) !important;
+    padding: 0.55rem 0.85rem !important;
+    font-size: 1rem !important;
   }
   .header-bar {
     padding: 0.5rem 0.2rem;
@@ -426,9 +336,6 @@ body, html {
   .header-title {
     font-size: 1.2rem;
   }
-  .header-username {
-    font-size: 0.94rem;
-  }
   .logout-btn {
     padding: 0.32rem 0.6rem;
     font-size: 0.8rem;
@@ -437,15 +344,5 @@ body, html {
   .dashboard-main {
     padding: 0.1rem;
     gap: 0.1rem;
-    height: 100vh;
-    overflow-y: auto;
-  }
-  .dashboard-main > *:not(.header-bar) {
-    flex: 0 0 auto !important;
-    max-height: calc(100vh - 120px) !important;
-    padding: 0.13rem 0.01rem !important;
-    margin-bottom: 0.09rem !important;
-    border-radius: 5px !important;
-    font-size: 0.89rem !important;
   }
 }

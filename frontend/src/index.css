@@ -58,7 +58,7 @@
 }
 
 
-@media (max-width: 900px) {
+/* @media (max-width: 900px) {
   .dashboard-layout {
     flex-direction: column;
   }
@@ -126,4 +126,4 @@
     font-size: 0.97rem;
     border-radius: 7px;
   }
-}
+} */
