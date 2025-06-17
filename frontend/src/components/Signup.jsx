@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './AuthForm.css';
+import './Authform.css';
 
 function Signup({ onBackToLogin }) {
   const [data, setData] = useState({ username: '', email: '', password: '' });
@@ -12,7 +12,7 @@ function Signup({ onBackToLogin }) {
     setLoading(true);
     setMsg('');
     try {
-      await axios.post('http://localhost:5000/signup', data);
+      await axios.post('https://ai-intgrated-mock-interview.onrender.com/signup', data);
       setMsg('Signup successful! You can now sign in.');
       setTimeout(() => {
         onBackToLogin();

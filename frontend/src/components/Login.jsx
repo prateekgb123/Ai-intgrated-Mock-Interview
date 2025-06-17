@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './AuthForm.css';
+import './Authform.css';
 
 function Login({ setToken, setUsername, setUserId, onSignupClick }) {
   const [data, setData] = useState({ username: '', password: '' });
