@@ -15,7 +15,7 @@ connectDB();
 const app = express();
 app.use(express.json());
 app.use(cors({
-  origin: ['http://localhost:5173'],
+  origin: ['https://ai-intgrated-mock-interview-frontend.onrender.com'],
   credentials: true,
 }));
 const QUESTIONS_PER_ROUND = 6; 
