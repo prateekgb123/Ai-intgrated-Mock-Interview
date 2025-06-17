@@ -16,7 +16,7 @@ function Signup({ onBackToLogin }) {
       setMsg('Signup successful! You can now sign in.');
       setTimeout(() => {
         onBackToLogin();
-      }, 1300); // Show success for a moment before switching back
+      }, 1300); 
     } catch (error) {
       setMsg('Signup failed: ' + (error.response?.data || error.message));
     }

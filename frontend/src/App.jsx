@@ -93,7 +93,6 @@ function App() {
         <div className="header-bar">
           <h2 className="header-title">Online Mock Interview</h2>
           <div className="header-user">
-            {/* <span className="header-username">{username}</span> */}
             <button className="logout-btn" onClick={handleLogout}>
               Logout
             </button>
