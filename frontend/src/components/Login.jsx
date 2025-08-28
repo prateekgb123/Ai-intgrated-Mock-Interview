@@ -12,7 +12,7 @@ function Login({ setToken, setUsername, setUserId, onSignupClick }) {
     setLoading(true);
     setMsg('');
     try {
-      const res = await axios.post('https://ai-intgrated-mock-interview.onrender.com/login', data);
+      const res = await axios.post('http://localhost:3000/login', data);
       setToken(res.data.token);
       setUsername(res.data.username);
       setUserId(res.data.userId);

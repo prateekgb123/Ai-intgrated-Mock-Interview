@@ -27,7 +27,7 @@ function OnlineMockInterview() {
 
   useEffect(() => {
     async function fetchRoundQuestions(roundKey) {
-      const url = `https://ai-intgrated-mock-interview.onrender.com/questions?round=${roundKey}&count=${QUESTIONS_PER_ROUND}`;
+      const url = `http://localhost:3000/questions?round=${roundKey}&count=${QUESTIONS_PER_ROUND}`;
       try {
         const res = await fetch(url);
         const data = await res.json();
@@ -94,7 +94,7 @@ function OnlineMockInterview() {
     setShowHistory(true);
     try {
       const userId = localStorage.getItem('userId');
-      const res = await fetch(`https://ai-intgrated-mock-interview.onrender.com/interview/history/${userId}`);
+      const res = await fetch(`http://localhost:3000/interview/history/${userId}`);
       if (!res.ok) throw new Error("Failed to fetch history");
       const data = await res.json();
       setHistory(data);
@@ -110,7 +110,7 @@ function OnlineMockInterview() {
     setError("");
     try {
       const userId = localStorage.getItem('userId');
-      const res = await fetch("https://ai-intgrated-mock-interview.onrender.com/interview/feedback", {
+      const res = await fetch("http://localhost:3000/interview/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

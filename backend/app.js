@@ -9,41 +9,46 @@ import connectDB from './config/db.js';
 import Interview from './models/Interviews.js';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import InterviewHistory from "./models/InterviewHistory.js";
+
 dotenv.config();
 connectDB();
 
 const app = express();
 app.use(express.json());
 app.use(cors({
-  origin: ['https://ai-intgrated-mock-interview-frontend.onrender.com'],
+  origin: [
+    'http://localhost:5173', // frontend local dev
+    'https://ai-intgrated-mock-interview-frontend.onrender.com', // production frontend
+  ],
   credentials: true,
 }));
+
 const QUESTIONS_PER_ROUND = 6; 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-
+// ---------- SIGNUP ----------
 app.post('/signup', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    let { username, email, password } = req.body;
+    username = username?.trim();
+    email = email?.trim();
+    password = password?.trim();
 
-    // check if username exists
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
     const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res.status(400).json({ message: "Username already taken" });
     }
-
-    // check if email exists
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
       return res.status(400).json({ message: "Email already registered" });
     }
 
-    // hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // save user
-    const newUser = new User({ username, email, password: hashedPassword });
+    // DO NOT hash the password here!
+    const newUser = new User({ username, email, password });
     await newUser.save();
 
     res.status(201).json({ message: "User registered successfully" });
@@ -53,22 +58,23 @@ app.post('/signup', async (req, res) => {
   }
 });
 
+// ---------- LOGIN ----------
 app.post('/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
-    console.log("Login attempt:", username, password);
+    let { username, password } = req.body;
+    username = username?.trim();
+    password = password?.trim();
+
+    if (!username || !password) {
+      return res.status(400).json({ message: "Both username and password are required" });
+    }
 
     const user = await User.findOne({ username });
     if (!user) {
-      console.log("User not found");
       return res.status(404).json({ message: "User not found. Please signup first!" });
     }
 
-    console.log("Stored hash in DB:", user.password);
-
-    // Always use bcrypt.compare (since signup hashes with bcrypt)
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("Password match result:", isMatch);
 
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -83,8 +89,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
-
-
+// ---------- DEFAULT QUESTIONS ----------
 const defaultQuestions = {
   aptitude: [
     { type: "mcq", question: "If 3x + 5 = 20, what is x?", options: ["5", "4", "3", "15"], correct: "5" },
@@ -120,7 +125,7 @@ const defaultQuestions = {
   ]
 };
 
-
+// ---------- GET QUESTIONS ----------
 app.get('/questions', async (req, res) => {
   try {
     const { round = "aptitude", count = 6 } = req.query;
@@ -131,6 +136,7 @@ app.get('/questions', async (req, res) => {
   }
 });
 
+// ---------- INTERVIEW FEEDBACK ----------
 app.post('/interview/feedback', async (req, res) => {
   try {
     const { rounds, userId } = req.body; 
@@ -185,7 +191,6 @@ app.post('/interview/feedback', async (req, res) => {
       }
     }
 
-   
     if (userId) {
       await InterviewHistory.create({
         userId,
@@ -206,6 +211,8 @@ app.post('/interview/feedback', async (req, res) => {
     res.status(500).json({ error: "Failed to generate feedback. Please try again." });
   }
 });
+
+// ---------- INTERVIEW HISTORY ----------
 app.get('/interview/history/:userId', async (req, res) => {
   try {
     const history = await InterviewHistory.find({ userId: req.params.userId }).sort({ date: -1 });
@@ -214,5 +221,7 @@ app.get('/interview/history/:userId', async (req, res) => {
     res.status(500).json({ error: "Failed to fetch interview history" });
   }
 });
+
+// ---------- SERVER START ----------
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

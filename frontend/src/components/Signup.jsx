@@ -12,7 +12,7 @@ function Signup({ onBackToLogin }) {
     setLoading(true);
     setMsg('');
     try {
-      await axios.post('https://ai-intgrated-mock-interview.onrender.com/signup', data);
+      await axios.post('http://localhost:3000/signup', data);
       setMsg('Signup successful! You can now sign in.');
       setTimeout(() => {
         onBackToLogin();
