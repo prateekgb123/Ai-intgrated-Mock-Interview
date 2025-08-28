@@ -23,25 +23,66 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 
 app.post('/signup', async (req, res) => {
-  const { username, email, password } = req.body;
-  const user = new User({ username, email, password });
-  await user.save();
-  res.send('User registered');
+  try {
+    const { username, email, password } = req.body;
+
+    // check if username exists
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ message: "Username already taken" });
+    }
+
+    // check if email exists
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ message: "Email already registered" });
+    }
+
+    // hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // save user
+    const newUser = new User({ username, email, password: hashedPassword });
+    await newUser.save();
+
+    res.status(201).json({ message: "User registered successfully" });
+  } catch (err) {
+    console.error("Signup error:", err);
+    res.status(500).json({ message: "Server error during signup" });
+  }
 });
 
 app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  const user = await User.findOne({ username });
-  if (!user) {
-    return res.status(404).send('User not found. Please signup first!');
-  }
-  if (await bcrypt.compare(password, user.password)) {
+  try {
+    const { username, password } = req.body;
+    console.log("Login attempt:", username, password);
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      console.log("User not found");
+      return res.status(404).json({ message: "User not found. Please signup first!" });
+    }
+
+    console.log("Stored hash in DB:", user.password);
+
+    // Always use bcrypt.compare (since signup hashes with bcrypt)
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log("Password match result:", isMatch);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
     res.json({ token, username: user.username, userId: user._id });
-  } else {
-    res.status(401).send('Invalid credentials');
+
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Server error during login" });
   }
 });
+
 
 
 const defaultQuestions = {
@@ -173,5 +214,5 @@ app.get('/interview/history/:userId', async (req, res) => {
     res.status(500).json({ error: "Failed to fetch interview history" });
   }
 });
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

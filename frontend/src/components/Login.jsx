@@ -20,7 +20,7 @@ function Login({ setToken, setUsername, setUserId, onSignupClick }) {
       if (error.response?.status === 404) {
         setMsg('No such user found. Please signup first!');
       } else {
-        setMsg('Login failed: ' + (error.response?.data || error.message));
+        setMsg('Login failed: ' + (error.response?.data?.message || error.message));
       }
     }
     setLoading(false);

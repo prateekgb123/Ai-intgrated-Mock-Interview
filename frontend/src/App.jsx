@@ -23,11 +23,52 @@ function App() {
 
   const closeSidebar = () => setSidebarOpen(false);
 
-  if (!token) {
-    return (
-      <div>
-        <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>AI Mock Interview</h1>
-        <div className="auth-container">
+if (!token) {
+  return (
+    <div className="auth-layout" style={{ display: "flex", height: "100vh" }}>
+      {/* Left side */}
+      <div
+        className="auth-left"
+        style={{
+          flex: 1,
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1522071820081-009f0129c71c')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          color: "white",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          padding: "2rem",
+        }}
+      >
+        <h1 style={{ fontSize: "2.5rem", fontWeight: "bold", textShadow: "2px 2px 6px rgba(0,0,0,0.6)" }}>
+          Welcome to <br /> AI-Powered Mock Interview
+        </h1>
+      </div>
+
+      {/* Right side */}
+      <div
+        className="auth-right"
+        style={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#f9f9f9",
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "400px",
+            background: "white",
+            padding: "2rem",
+            borderRadius: "12px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          }}
+        >
           {!showSignup ? (
             <Login
               setToken={setToken}
@@ -40,8 +81,10 @@ function App() {
           )}
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
 
   return (
     <div className="dashboard-layout">
