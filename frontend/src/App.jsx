@@ -13,7 +13,6 @@ function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showSignup, setShowSignup] = useState(false);
 
-  // Progress unlocks
   const [progress, setProgress] = useState({
     aptitude: true,
     coding: false,
@@ -26,7 +25,6 @@ function App() {
   const [finalResult, setFinalResult] = useState(null);
   const [feedbacks, setFeedbacks] = useState(null);
 
-  // Logout
   const handleLogout = () => {
     setToken('');
     setUsername('');
@@ -39,7 +37,6 @@ function App() {
     setFeedbacks(null);
   };
 
-  // Rounds list with type
   const rounds = [
     { id: 'aptitude', title: 'Aptitude Round', type: 'mcq' },
     { id: 'coding', title: 'Coding Round', type: 'code' },
@@ -47,12 +44,27 @@ function App() {
     { id: 'hr', title: 'HR Round', type: 'text' },
   ];
 
-  // Handle round completion
   const handleRoundComplete = async (roundId, answers, questions, types) => {
-    const updatedRounds = [...allRounds, { round: roundId, questions, answers, types }];
-    setAllRounds(updatedRounds);
+    const enrichedQuestions = questions.map(q => ({
+      question: q.question,
+      type: q.type,
+      correct: q.correct || q.answer || null,
+    }));
 
-    // Unlock next round
+    let updatedRounds;
+    setAllRounds(prevRounds => {
+      const existingIndex = prevRounds.findIndex(r => r.round === roundId);
+      if (existingIndex !== -1) {
+        const newRounds = [...prevRounds];
+        newRounds[existingIndex] = { round: roundId, questions: enrichedQuestions, answers, types };
+        updatedRounds = newRounds;
+        return newRounds;
+      } else {
+        updatedRounds = [...prevRounds, { round: roundId, questions: enrichedQuestions, answers, types }];
+        return updatedRounds;
+      }
+    });
+
     setProgress(prev => {
       if (roundId === 'aptitude') return { ...prev, coding: true };
       if (roundId === 'coding') return { ...prev, technical: true };
@@ -60,7 +72,6 @@ function App() {
       return prev;
     });
 
-    // Final HR round → send to backend
     if (roundId === 'hr') {
       try {
         const res = await fetch('http://localhost:3000/interview/feedback', {
@@ -69,27 +80,26 @@ function App() {
           body: JSON.stringify({ rounds: updatedRounds, userId }),
         });
         const data = await res.json();
-        setFinalResult(data.result || data.message || 'No result');
-        setFeedbacks(data.feedbacks || []);
+        setFinalResult(data.evaluation || data.result || 'No result');
+        setFeedbacks(null); // You can set feedbacks if returned by backend
       } catch (err) {
         console.error('Error submitting final answers:', err);
         setFinalResult('Error contacting AI service.');
       }
     }
 
-    setSelectedRound(null); // Back to dashboard
+    setSelectedRound(null);
   };
 
-  // Auth UI
   if (!token) {
     return (
       <div className="auth-layout" style={{ display: 'flex', height: '100vh' }}>
-        {/* Left side */}
         <div
           className="auth-left"
           style={{
             flex: 1,
-            backgroundImage: "url('https://images.unsplash.com/photo-1522071820081-009f0129c71c')",
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1522071820081-009f0129c71c')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             color: 'white',
@@ -110,8 +120,6 @@ function App() {
             Welcome to <br /> AI-Powered Mock Interview
           </h1>
         </div>
-
-        {/* Right side */}
         <div
           className="auth-right"
           style={{
@@ -148,15 +156,16 @@ function App() {
     );
   }
 
-  // Main App UI
   return (
-    <div className="dashboard-layout" style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      background: 'linear-gradient(90deg, #007bff 0%, #3a8dde 100%)'
-    }}>
-      {/* Navbar fixed at top */}
+    <div
+      className="dashboard-layout"
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        background: 'linear-gradient(90deg, #007bff 0%, #3a8dde 100%)',
+      }}
+    >
       <nav
         className="navbar"
         style={{
@@ -171,14 +180,24 @@ function App() {
           justifyContent: 'space-between',
           padding: '1rem 2rem',
           boxShadow: '0 2px 10px rgba(0,0,0,0.07)',
-          minHeight: '64px'
+          minHeight: '64px',
         }}
       >
-        <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
-          <img src="logo.jpeg" alt="AI Logo" style={{height: 40, borderRadius: '50%', marginRight: 12}} />
-          <h2 style={{fontWeight: 700, letterSpacing: '1px'}}>AI Mock Interview</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <img
+            src="logo.jpeg"
+            alt="AI Logo"
+            style={{ height: 40, borderRadius: '50%', marginRight: 12 }}
+          />
+          <h2 style={{ fontWeight: 700, letterSpacing: '1px' }}>
+            AI Mock Interview
+          </h2>
         </div>
-        <div className="nav-links" style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+
+        <div
+          className="nav-links"
+          style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}
+        >
           <NavButton
             active={activeTab === 'dashboard'}
             onClick={() => setActiveTab('dashboard')}
@@ -197,67 +216,98 @@ function App() {
             icon="👤"
             label="Profile"
           />
-          <span style={{
-            marginLeft: 10,
-            padding: '4px 14px',
-            background: 'rgba(255,255,255,0.08)',
-            borderRadius: '20px',
-            fontWeight: 500,
-            fontSize: '1rem'
-          }}>
+          <span
+            style={{
+              marginLeft: 10,
+              padding: '4px 14px',
+              background: 'rgba(255,255,255,0.08)',
+              borderRadius: '20px',
+              fontWeight: 500,
+              fontSize: '1rem',
+            }}
+          >
             {username}
           </span>
-          <NavButton
-            onClick={handleLogout}
-            icon="🚪"
-            label="Logout"
-            danger
-          />
+          <NavButton onClick={handleLogout} icon="🚪" label="Logout" danger />
         </div>
       </nav>
 
-      {/* Main content below navbar */}
-      <main className="dashboard-main" style={{
-        flex: 1,
-        padding: '2rem',
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: 0 // ensures main content fills the rest
-      }}>
-        {/* Final Result */}
-        {finalResult ? (
-          <div style={{ padding: '2rem', textAlign: 'center', background: 'white', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-            <h1>Final Result</h1>
-            <h2 style={{ marginTop: '1rem' }}>{finalResult}</h2>
-            {feedbacks && feedbacks.length > 0 && (
-              <div style={{ marginTop: '1.5rem', textAlign: 'left' }}>
-                <h3 className="font-bold">AI Feedback</h3>
-                <ul>
-                  {feedbacks.map((f, idx) => (
-                    <li key={idx} style={{ marginTop: '0.5rem' }}>{f}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        ) : activeTab === 'dashboard' ? (
+      <main
+        className="dashboard-main"
+        style={{
+          flex: 1,
+          padding: '2rem',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+        }}
+      >
+       {finalResult ? (
+  <div style={{
+    padding: '2rem',
+    background: 'white',
+    borderRadius: '12px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    overflowY: 'auto',
+    fontSize: '1.1rem',
+    whiteSpace: 'pre-wrap'
+  }}>
+    {/* Render only the final evaluation text you get from backend */}
+    {finalResult.split("Decision:")[0]}
+    <h2 style={{ marginTop: '1rem', fontWeight: 'bold' }}>
+      Decision:{finalResult.includes("Decision:") ? finalResult.split("Decision:")[1].trim() : ""}
+    </h2>
+  </div>
+)  : activeTab === 'dashboard' ? (
           !selectedRound ? (
-            // Show rounds
-            <div className="rounds-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
-              {rounds.map((round) => {
+            <div
+              className="rounds-grid"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                gap: '1.5rem',
+              }}
+            >
+              {rounds.map(round => {
                 const unlocked = progress[round.id];
                 return (
-                  <div key={round.id} style={{ padding: '1.5rem', borderRadius: '12px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', background: 'white', textAlign: 'center' }}>
+                  <div
+                    key={round.id}
+                    style={{
+                      padding: '1.5rem',
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                      background: 'white',
+                      textAlign: 'center',
+                    }}
+                  >
                     <h3>{round.title}</h3>
                     {unlocked ? (
                       <button
                         onClick={() => setSelectedRound(round.id)}
-                        style={{ marginTop: '1rem', padding: '0.5rem 1rem', borderRadius: '8px', background: '#007bff', color: 'white' }}
+                        style={{
+                          marginTop: '1rem',
+                          padding: '0.5rem 1rem',
+                          borderRadius: '8px',
+                          background: '#007bff',
+                          color: 'white',
+                        }}
                       >
                         Start
                       </button>
                     ) : (
-                      <button disabled style={{ marginTop: '1rem', padding: '0.5rem 1rem', borderRadius: '8px', background: '#ccc', color: '#666' }}>Locked</button>
+                      <button
+                        disabled
+                        style={{
+                          marginTop: '1rem',
+                          padding: '0.5rem 1rem',
+                          borderRadius: '8px',
+                          background: '#ccc',
+                          color: '#666',
+                        }}
+                      >
+                        Locked
+                      </button>
                     )}
                   </div>
                 );
@@ -280,14 +330,13 @@ function App() {
   );
 }
 
-// Extract NavButton to keep code clean and DRY
 function NavButton({ active, onClick, icon, label, danger }) {
   return (
     <button
       onClick={onClick}
       style={{
         background: active ? '#fff' : 'transparent',
-        color: danger ? '#ff3b3b' : (active ? '#007bff' : '#fff'),
+        color: danger ? '#ff3b3b' : active ? '#007bff' : '#fff',
         fontWeight: active ? 700 : 500,
         border: 'none',
         outline: 'none',
@@ -297,7 +346,7 @@ function NavButton({ active, onClick, icon, label, danger }) {
         boxShadow: active ? '0 2px 12px rgba(0,0,0,0.08)' : 'none',
         fontSize: '1rem',
         transition: 'all 0.2s',
-        marginLeft: danger ? '1rem' : 0
+        marginLeft: danger ? '1rem' : 0,
       }}
     >
       <span style={{ marginRight: 8 }}>{icon}</span>

@@ -240,84 +240,46 @@ app.post('/api/judge', async (req, res) => {
   res.json({ results });
 });
 // ---------- INTERVIEW FEEDBACK ----------
+// Feedback endpoint
 app.post('/interview/feedback', async (req, res) => {
+  const { rounds } = req.body;
+
   try {
-    const { rounds, userId } = req.body;
-    const roundsWithCorrect = rounds.map(r => {
-      const correctArray = (defaultQuestions[r.round] || []).map(q => q.correct || null);
-      return { ...r, correct: correctArray };
-    });
-
     const prompt = `
-      You are an expert technical interviewer for software roles. For each round, each question, and each answer, carefully check the correctness (use the 'correct' field if provided), then give constructive, concise feedback. For multiple choice or factual questions, also say if it's correct/incorrect and show the right answer if wrong. For open-ended questions, give suggestions for improvement. At the end, decide if the candidate should be "Selected" or "Not Selected" overall. Output a JSON object like: {"feedbacks":[["...","..."],["..."]...],"result":"Selected" or "Not Selected"}. Return the JSON directly, without extra text.
+You are an interviewer. Evaluate the entire mock interview across multiple rounds.
 
-      Rounds:
-      ${roundsWithCorrect.map((r) =>
-        `Round: ${r.round}
-        ${r.questions.map((q, j) =>
-          `Q${j+1}: ${q}\nType: ${r.types[j]}\nAnswer: ${r.answers[j]}\n${r.correct[j] ? `Correct: ${r.correct[j]}` : ''}\n`
-        ).join('')}
-        `
-      ).join('')}
-    `;
+For each round:
+- Show the round name
+- For each question: 
+   - Question text
+   - User Answer
+   - Correct Answer (if given in data)
+   - Mark Correct/Wrong
+
+At the end:
+- Give total score across all rounds
+- Decide: "Selected" if >= 60% correct, otherwise "Not Selected"
+`;
+
+    // Format input for AI
+    const formatted = rounds.map(r =>
+      `\n=== ${r.round} ===\n` +
+      r.questions.map((q, i) =>
+        `Q${i+1}: ${q.question}\nType: ${q.type}\nCorrect: ${q.correct || "N/A"}\nUser Answer: ${r.answers[i] || "No Answer"}`
+      ).join("\n\n")
+    ).join("\n\n");
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    const result = await model.generateContent(prompt);
+    const result = await model.generateContent(prompt + "\n\n" + formatted);
 
-    let rawText = result.response.text().trim();
-    console.log("RAW GEMINI OUTPUT:", rawText);
-
-    let responseJSON;
-    try {
-      responseJSON = JSON.parse(rawText);
-    } catch (e) {
-      const match = rawText.match(/\{[\s\S]*\}/);
-      if (match) {
-        try {
-          responseJSON = JSON.parse(match[0]);
-        } catch (e2) {
-          return res.status(500).json({ error: "Gemini returned unparseable JSON." });
-        }
-      } else {
-        return res.status(500).json({ error: "Gemini did not return valid JSON feedback." });
-      }
-    }
-
-    let feedbacks = responseJSON.feedbacks;
-    if (Array.isArray(feedbacks) && Array.isArray(feedbacks[0])) {
-      const formatted = feedbacks.map(fbArr =>
-        `Your Answer: ${fbArr[0]}\nCorrect Answer: ${fbArr[1]}`
-      );
-
-      feedbacks = [];
-      let start = 0;
-      for (const r of rounds) {
-        const roundCount = r.questions.length;
-        feedbacks.push(formatted.slice(start, start + roundCount));
-        start += roundCount;
-      }
-    }
-
-    if (userId) {
-      await InterviewHistory.create({
-        userId,
-        date: new Date(),
-        result: responseJSON.result,
-        feedbacks,
-        rounds
-      });
-    }
-
-    res.json({
-      feedbacks,
-      result: responseJSON.result
-    });
-
+    const evaluation = result.response.text().trim();
+    res.json({ evaluation });
   } catch (err) {
     console.error("Error in /interview/feedback:", err);
-    res.status(500).json({ error: "Failed to generate feedback. Please try again." });
+    res.status(500).json({ error: "Failed to generate feedback" });
   }
 });
+
 
 // ---------- INTERVIEW HISTORY ----------
 app.get('/interview/history/:userId', async (req, res) => {
