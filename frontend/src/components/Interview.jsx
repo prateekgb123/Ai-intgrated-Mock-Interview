@@ -1,8 +1,8 @@
-// Interview.jsx
 import React, { useEffect, useState } from "react";
+import MonacoEditor from "@monaco-editor/react";
+import axios from "axios";
 import './Interview.css';
 
-// Define how many questions each round should have
 const ROUND_COUNTS = {
   aptitude: 10,
   coding: 2,
@@ -16,8 +16,9 @@ function Interview({ roundKey, onComplete }) {
   const [answers, setAnswers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [completed, setCompleted] = useState(false);
+  const [codeResult, setCodeResult] = useState(null);
+  const [runningCode, setRunningCode] = useState(false);
 
-  // Determine round type for rendering
   const getRoundType = () => {
     if (roundKey === "aptitude" || roundKey === "technical") return "mcq";
     if (roundKey === "coding") return "code";
@@ -28,20 +29,25 @@ function Interview({ roundKey, onComplete }) {
 
   useEffect(() => {
     async function fetchRoundQuestions() {
-      const count = ROUND_COUNTS[roundKey] || 6; // fetch based on round
+      const count = ROUND_COUNTS[roundKey] || 6;
       const url = `http://localhost:3000/questions?round=${roundKey}&count=${count}`;
       try {
         const res = await fetch(url);
         const data = await res.json();
         let qs = data.questions || [];
-
-        // Filter MCQs for aptitude & technical rounds
         if (roundKey === "aptitude" || roundKey === "technical") {
           qs = qs.filter(q => q.type === "mcq").slice(0, count);
         }
-
         setQuestions(qs);
-        setAnswers(Array(qs.length).fill(""));
+
+        // Set initial value for answers: for coding round, use function template
+        if (roundKey === "coding") {
+          setAnswers(qs.map(q => 
+            `${q.signature || "function func(){"}\n  \n}`
+          ));
+        } else {
+          setAnswers(Array(qs.length).fill(""));
+        }
       } catch (err) {
         console.error("Error fetching questions:", err);
         setQuestions([]);
@@ -52,8 +58,7 @@ function Interview({ roundKey, onComplete }) {
     fetchRoundQuestions();
   }, [roundKey]);
 
-  const handleChange = (e) => {
-    const val = e.target.value;
+  const handleChange = (val) => {
     setAnswers(prev => {
       const copy = [...prev];
       copy[current] = val;
@@ -72,10 +77,30 @@ function Interview({ roundKey, onComplete }) {
   const handleNext = () => {
     if (current < questions.length - 1) {
       setCurrent(current + 1);
+      setCodeResult(null);
     } else {
       setCompleted(true);
       onComplete(roundKey, answers, questions, questions.map(q => q.type));
     }
+  };
+
+  // Run code against test cases using backend API (LeetCode-style)
+  const handleRunCode = async () => {
+    setRunningCode(true);
+    setCodeResult(null);
+    const q = questions[current];
+    try {
+      // Send the entire function code as sourceCode
+      const res = await axios.post("http://localhost:3000/api/judge", {
+        sourceCode: answers[current], // The whole function!
+        language: q.language || "javascript",
+        testCases: q.testCases
+      });
+      setCodeResult(res.data.results);
+    } catch (err) {
+      setCodeResult([{ error: "Error running code" }]);
+    }
+    setRunningCode(false);
   };
 
   if (loading) return <div className="container"><h2>Loading {roundKey} questions...</h2></div>;
@@ -118,26 +143,56 @@ function Interview({ roundKey, onComplete }) {
             ))}
           </div>
         ) : roundType === "code" ? (
-          <textarea
-            rows={10}
-            placeholder="Write your code here..."
-            value={answers[current]}
-            onChange={handleChange}
-            className="textarea code-editor"
-          />
+          <>
+            <MonacoEditor
+              height="300px"
+              language={q.language || "javascript"}
+              value={answers[current]}
+              onChange={handleChange}
+              theme="vs-dark"
+              options={{ fontSize: 16 }}
+            />
+            <button
+              onClick={handleRunCode}
+              className="button"
+              disabled={runningCode || !answers[current]?.trim()}
+              style={{ marginTop: "1rem" }}
+            >
+              {runningCode ? "Running..." : "Run Code"}
+            </button>
+            {codeResult && (
+              <div className="testcase-results">
+                <h4>Results:</h4>
+                {codeResult.map((res, idx) => (
+                  <div key={idx} style={{marginBottom: "6px"}}>
+                    {res.error ? (
+                      <span style={{color: "red"}}>{res.error}</span>
+                    ) : (
+                      <>
+                        <strong>Input:</strong> {res.input} <br />
+                        <strong>Expected:</strong> {res.expected} <br />
+                        <strong>Your Output:</strong> {res.actual} <br />
+                        <strong>Status:</strong> {res.passed ? '✅ Passed' : '❌ Failed'}
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         ) : (
           <textarea
             rows={5}
             placeholder="Type your answer here..."
             value={answers[current]}
-            onChange={handleChange}
+            onChange={e => handleChange(e.target.value)}
             className="textarea"
           />
         )}
 
         <button
           onClick={handleNext}
-          disabled={!answers[current]?.trim()}
+          disabled={roundType === "code" ? !codeResult?.some(r => r.passed) : !answers[current]?.trim()}
           className="button"
         >
           {current === questions.length - 1 ? 'Finish Round' : 'Next Question'}

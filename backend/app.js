@@ -4,6 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import axios from 'axios';
 import User from './models/User.js';
 import connectDB from './config/db.js';
 import Interview from './models/Interviews.js';
@@ -17,13 +18,13 @@ const app = express();
 app.use(express.json());
 app.use(cors({
   origin: [
-    'http://localhost:5173', // frontend local dev
-    'https://ai-intgrated-mock-interview-frontend.onrender.com', // production frontend
+    'http://localhost:5173',
+    'https://ai-intgrated-mock-interview-frontend.onrender.com',
   ],
   credentials: true,
 }));
 
-const QUESTIONS_PER_ROUND = 6; 
+const QUESTIONS_PER_ROUND = 6;
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // ---------- SIGNUP ----------
@@ -47,8 +48,9 @@ app.post('/signup', async (req, res) => {
       return res.status(400).json({ message: "Email already registered" });
     }
 
-    // DO NOT hash the password here!
-    const newUser = new User({ username, email, password });
+    // Hash the password before saving!
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ username, email, password: hashedPassword });
     await newUser.save();
 
     res.status(201).json({ message: "User registered successfully" });
@@ -97,25 +99,36 @@ const defaultQuestions = {
     { type: "mcq", question: "Odd one out: Apple, Orange, Banana, Potato", options: ["Apple", "Orange", "Banana", "Potato"], correct: "Potato" },
     { type: "mcq", question: "25% of 80?", options: ["10", "15", "20", "25"], correct: "20" },
     { type: "mcq", question: "12 + x = 25, x = ?", options: ["10", "12", "13", "15"], correct: "13" },
-    
-    // Blood relation question
     { type: "mcq", question: "Pointing to a man, Ravi said, 'He is the son of my grandfather’s only son.' How is the man related to Ravi?", options: ["Brother", "Father", "Cousin", "Uncle"], correct: "Brother" },
-    
-    // Calendar question
     { type: "mcq", question: "If 1st January 2025 is Wednesday, what day will 1st January 2026 be?", options: ["Thursday", "Friday", "Saturday", "Sunday"], correct: "Friday" },
-    
-    // Clock question
     { type: "mcq", question: "At 3:15, the angle between hour and minute hand of a clock is?", options: ["7.5°", "0°", "90°", "52.5°"], correct: "7.5°" },
-    
     { type: "mcq", question: "Square root of 144?", options: ["10", "11", "12", "14"], correct: "12" },
     { type: "mcq", question: "Next in series: 5, 10, 20, 40, ?", options: ["60", "70", "80", "100"], correct: "80" }
   ],
-
   coding: [
-    { type: "code", question: "Write a JS function to reverse a string." },
-    { type: "code", question: "Write a function to check if a number is prime." }
+    {
+      type: "code",
+      question: "Write a JS function to reverse a string.",
+      language: "javascript",
+      // Signature without curly braces, LeetCode-style:
+      signature: "function reverseString(str){",
+      testCases: [
+        { input: "hello", expectedOutput: "olleh" },
+        { input: "world", expectedOutput: "dlrow" }
+      ]
+    },
+    {
+      type: "code",
+      question: "Write a function to check if a number is prime.",
+      language: "javascript",
+      signature: "function isPrime(num){",
+      testCases: [
+        { input: "2", expectedOutput: "true" },
+        { input: "4", expectedOutput: "false" },
+        { input: "17", expectedOutput: "true" }
+      ]
+    }
   ],
-
   technical: [
     { type: "mcq", question: "HTML tag for image?", options: ["<img>", "<src>", "<image>", "<pic>"], correct: "<img>" },
     { type: "mcq", question: "Not a CSS selector?", options: [".class", "#id", ":hover", "@media"], correct: "@media" },
@@ -128,7 +141,6 @@ const defaultQuestions = {
     { type: "mcq", question: "Which method adds element at start of array?", options: ["push()", "pop()", "shift()", "unshift()"], correct: "unshift()" },
     { type: "mcq", question: "Which CSS property changes element background?", options: ["color", "bgcolor", "background", "background-color"], correct: "background-color" }
   ],
-
   hr: [
     { type: "text", question: "Tell me about yourself." },
     { type: "text", question: "Why do you want to join our company?" },
@@ -138,16 +150,13 @@ const defaultQuestions = {
   ]
 };
 
-
 // ---------- GET QUESTIONS ----------
-// GET QUESTIONS
 app.get('/questions', async (req, res) => {
   try {
     const { round = "aptitude", count = 6 } = req.query;
 
     let questions = defaultQuestions[round] || [];
 
-    // Apply type filters
     if (round === "aptitude" || round === "technical") {
       questions = questions.filter(q => q.type === "mcq");
     }
@@ -158,19 +167,82 @@ app.get('/questions', async (req, res) => {
       questions = questions.filter(q => q.type === "text" || q.type === "mcq");
     }
 
-    // Now slice AFTER filtering
     questions = questions.slice(0, Number(count));
-
     res.json({ questions });
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch questions" });
   }
 });
- 
+
+// ---------- LIVE CODING JUDGE (JUDGE0) ----------
+// LeetCode-style: receives functionBody, signature, language, testCases
+const languageMap = {
+  javascript: 63,
+  python: 71,
+  java: 62,
+  cpp: 54,
+  // Add more as needed
+};
+
+// Utility to wrap user code for LeetCode-style evaluation
+function wrapCode(fullFunctionCode, input, language) {
+  if (language === "javascript") {
+    // Extract function name
+    const match = fullFunctionCode.match(/function\s+([a-zA-Z0-9_]+)\s*\(/);
+    const funcName = match ? match[1] : "func";
+    return `
+${fullFunctionCode}
+console.log(${funcName}(${JSON.stringify(input)}));
+`;
+  }
+  return fullFunctionCode;
+}
+app.post('/api/judge', async (req, res) => {
+  const { sourceCode, language, testCases } = req.body;
+
+  if (!sourceCode || !language || !Array.isArray(testCases)) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  const language_id = languageMap[language] || 63;
+  const results = [];
+
+  for (const tc of testCases) {
+    try {
+      const codeToRun = wrapCode(sourceCode, tc.input, language);
+      // console.log('Code sent to Judge0:', codeToRun); // For debugging!
+      const submission = await axios.post(
+        'https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true',
+        {
+          source_code: codeToRun,
+          language_id,
+          stdin: ""
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-RapidAPI-Key': process.env.JUDGE0_API_KEY,
+            'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
+          }
+        }
+      );
+      const output = submission.data.stdout || submission.data.stderr || submission.data.compile_output || '';
+      results.push({
+        input: tc.input,
+        expected: tc.expectedOutput,
+        actual: output.trim(),
+        passed: output.trim() === tc.expectedOutput.trim()
+      });
+    } catch (err) {
+      results.push({ input: tc.input, expected: tc.expectedOutput, actual: "Error", passed: false });
+    }
+  }
+  res.json({ results });
+});
 // ---------- INTERVIEW FEEDBACK ----------
 app.post('/interview/feedback', async (req, res) => {
   try {
-    const { rounds, userId } = req.body; 
+    const { rounds, userId } = req.body;
     const roundsWithCorrect = rounds.map(r => {
       const correctArray = (defaultQuestions[r.round] || []).map(q => q.correct || null);
       return { ...r, correct: correctArray };
@@ -212,20 +284,19 @@ app.post('/interview/feedback', async (req, res) => {
     }
 
     let feedbacks = responseJSON.feedbacks;
-    // Format feedbacks per round dynamically
-if (Array.isArray(feedbacks) && Array.isArray(feedbacks[0])) {
-  const formatted = feedbacks.map(fbArr =>
-    `Your Answer: ${fbArr[0]}\nCorrect Answer: ${fbArr[1]}`
-  );
+    if (Array.isArray(feedbacks) && Array.isArray(feedbacks[0])) {
+      const formatted = feedbacks.map(fbArr =>
+        `Your Answer: ${fbArr[0]}\nCorrect Answer: ${fbArr[1]}`
+      );
 
-  feedbacks = [];
-  let start = 0;
-  for (const r of rounds) {
-    const roundCount = r.questions.length;
-    feedbacks.push(formatted.slice(start, start + roundCount));
-    start += roundCount;
-  }
-}
+      feedbacks = [];
+      let start = 0;
+      for (const r of rounds) {
+        const roundCount = r.questions.length;
+        feedbacks.push(formatted.slice(start, start + roundCount));
+        start += roundCount;
+      }
+    }
 
     if (userId) {
       await InterviewHistory.create({

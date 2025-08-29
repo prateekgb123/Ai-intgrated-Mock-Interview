@@ -1,4 +1,3 @@
-// App.jsx
 import React, { useState } from 'react';
 import Signup from './components/Signup';
 import Login from './components/Login';
@@ -151,28 +150,80 @@ function App() {
 
   // Main App UI
   return (
-    <div className="dashboard-layout">
-      {/* Navbar */}
+    <div className="dashboard-layout" style={{
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      background: 'linear-gradient(90deg, #007bff 0%, #3a8dde 100%)'
+    }}>
+      {/* Navbar fixed at top */}
       <nav
         className="navbar"
         style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          padding: '1rem',
-          background: '#222',
+          position: 'sticky',
+          top: 0,
+          width: '100%',
+          zIndex: 100,
+          background: 'linear-gradient(90deg, #007bff 0%, #3a8dde 100%)',
           color: 'white',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '1rem 2rem',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.07)',
+          minHeight: '64px'
         }}
       >
-        <h2>AI Mock Interview</h2>
-        <div className="nav-links" style={{ display: 'flex', gap: '1rem' }}>
-          <button onClick={() => setActiveTab('dashboard')} style={{ background: 'transparent', color: 'white' }}>Home</button>
-          <button onClick={() => setActiveTab('history')} style={{ background: 'transparent', color: 'white' }}>History</button>
-          <button onClick={() => setActiveTab('profile')} style={{ background: 'transparent', color: 'white' }}>Profile</button>
-          <button onClick={handleLogout} style={{ background: 'transparent', color: 'white' }}>Logout</button>
+        <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
+          <img src="logo.jpeg" alt="AI Logo" style={{height: 40, borderRadius: '50%', marginRight: 12}} />
+          <h2 style={{fontWeight: 700, letterSpacing: '1px'}}>AI Mock Interview</h2>
+        </div>
+        <div className="nav-links" style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+          <NavButton
+            active={activeTab === 'dashboard'}
+            onClick={() => setActiveTab('dashboard')}
+            icon="🏠"
+            label="Home"
+          />
+          <NavButton
+            active={activeTab === 'history'}
+            onClick={() => setActiveTab('history')}
+            icon="📜"
+            label="History"
+          />
+          <NavButton
+            active={activeTab === 'profile'}
+            onClick={() => setActiveTab('profile')}
+            icon="👤"
+            label="Profile"
+          />
+          <span style={{
+            marginLeft: 10,
+            padding: '4px 14px',
+            background: 'rgba(255,255,255,0.08)',
+            borderRadius: '20px',
+            fontWeight: 500,
+            fontSize: '1rem'
+          }}>
+            {username}
+          </span>
+          <NavButton
+            onClick={handleLogout}
+            icon="🚪"
+            label="Logout"
+            danger
+          />
         </div>
       </nav>
 
-      <main className="dashboard-main" style={{ padding: '2rem' }}>
+      {/* Main content below navbar */}
+      <main className="dashboard-main" style={{
+        flex: 1,
+        padding: '2rem',
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0 // ensures main content fills the rest
+      }}>
         {/* Final Result */}
         {finalResult ? (
           <div style={{ padding: '2rem', textAlign: 'center', background: 'white', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
@@ -226,6 +277,32 @@ function App() {
         ) : null}
       </main>
     </div>
+  );
+}
+
+// Extract NavButton to keep code clean and DRY
+function NavButton({ active, onClick, icon, label, danger }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        background: active ? '#fff' : 'transparent',
+        color: danger ? '#ff3b3b' : (active ? '#007bff' : '#fff'),
+        fontWeight: active ? 700 : 500,
+        border: 'none',
+        outline: 'none',
+        padding: '8px 18px',
+        borderRadius: '22px',
+        cursor: 'pointer',
+        boxShadow: active ? '0 2px 12px rgba(0,0,0,0.08)' : 'none',
+        fontSize: '1rem',
+        transition: 'all 0.2s',
+        marginLeft: danger ? '1rem' : 0
+      }}
+    >
+      <span style={{ marginRight: 8 }}>{icon}</span>
+      {label}
+    </button>
   );
 }
 
