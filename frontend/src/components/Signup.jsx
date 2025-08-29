@@ -11,14 +11,22 @@ function Signup({ onBackToLogin }) {
     e.preventDefault();
     setLoading(true);
     setMsg('');
+
+    // Trim inputs before sending
+    const trimmedData = {
+      username: data.username.trim(),
+      email: data.email.trim(),
+      password: data.password.trim(),
+    };
+
     try {
-      await axios.post('http://localhost:3000/signup', data);
+      await axios.post('http://localhost:3000/signup', trimmedData);
       setMsg('Signup successful! You can now sign in.');
       setTimeout(() => {
         onBackToLogin();
-      }, 1300); 
+      }, 1300);
     } catch (error) {
-      setMsg('Signup failed: ' + (error.response?.data || error.message));
+      setMsg('Signup failed: ' + (error.response?.data?.message || error.message));
     }
     setLoading(false);
   };

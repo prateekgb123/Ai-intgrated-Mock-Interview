@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import Signup from './components/Signup';
 import Login from './components/Login';
 import Interview from './components/Interview';
-import Profile from './components/Profile';
 import History from './components/History';
 import './App.css';
 
@@ -201,20 +200,12 @@ function App() {
           <NavButton
             active={activeTab === 'dashboard'}
             onClick={() => setActiveTab('dashboard')}
-            icon="🏠"
             label="Home"
           />
           <NavButton
             active={activeTab === 'history'}
             onClick={() => setActiveTab('history')}
-            icon="📜"
             label="History"
-          />
-          <NavButton
-            active={activeTab === 'profile'}
-            onClick={() => setActiveTab('profile')}
-            icon="👤"
-            label="Profile"
           />
           <span
             style={{
@@ -228,7 +219,7 @@ function App() {
           >
             {username}
           </span>
-          <NavButton onClick={handleLogout} icon="🚪" label="Logout" danger />
+          <NavButton onClick={handleLogout} label="Logout" danger />
         </div>
       </nav>
 
@@ -335,8 +326,8 @@ function NavButton({ active, onClick, icon, label, danger }) {
     <button
       onClick={onClick}
       style={{
-        background: active ? '#fff' : 'transparent',
-        color: danger ? '#ff3b3b' : active ? '#007bff' : '#fff',
+        background: danger ? '#ff3b3b' : (active ? '#fff' : 'transparent'),
+        color: danger ? '#fff' : (active ? '#007bff' : '#fff'),
         fontWeight: active ? 700 : 500,
         border: 'none',
         outline: 'none',

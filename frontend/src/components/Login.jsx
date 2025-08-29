@@ -7,24 +7,32 @@ function Login({ setToken, setUsername, setUserId, onSignupClick }) {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMsg('');
-    try {
-      const res = await axios.post('http://localhost:3000/login', data);
-      setToken(res.data.token);
-      setUsername(res.data.username);
-      setUserId(res.data.userId);
-    } catch (error) {
-      if (error.response?.status === 404) {
-        setMsg('No such user found. Please signup first!');
-      } else {
-        setMsg('Login failed: ' + (error.response?.data?.message || error.message));
-      }
-    }
-    setLoading(false);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setMsg('');
+
+  // Trim username and password before sending
+  const trimmedData = {
+    username: data.username.trim(),
+    password: data.password.trim(),
   };
+
+  try {
+    const res = await axios.post('http://localhost:3000/login', trimmedData);
+    setToken(res.data.token);
+    setUsername(res.data.username);
+    setUserId(res.data.userId);
+  } catch (error) {
+    if (error.response?.status === 404) {
+      setMsg('No such user found. Please signup first!');
+    } else {
+      setMsg('Login failed: ' + (error.response?.data?.message || error.message));
+    }
+  }
+  setLoading(false);
+};
+
 
   return (
     <form className="auth-form" onSubmit={handleSubmit}>

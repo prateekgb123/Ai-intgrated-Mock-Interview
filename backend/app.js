@@ -15,6 +15,7 @@ dotenv.config();
 connectDB();
 
 const app = express();
+
 app.use(express.json());
 app.use(cors({
   origin: [
@@ -48,10 +49,9 @@ app.post('/signup', async (req, res) => {
       return res.status(400).json({ message: "Email already registered" });
     }
 
-    // Hash the password before saving!
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, email, password: hashedPassword });
+    const newUser = new User({ username, email, password });
     await newUser.save();
+
 
     res.status(201).json({ message: "User registered successfully" });
   } catch (err) {
@@ -67,22 +67,32 @@ app.post('/login', async (req, res) => {
     username = username?.trim();
     password = password?.trim();
 
+    console.log(`Login attempt for user: "${username}" with password: "${password}"`);
+
     if (!username || !password) {
+      console.log("Missing username or password");
       return res.status(400).json({ message: "Both username and password are required" });
     }
 
     const user = await User.findOne({ username });
+
     if (!user) {
+      console.log(`User not found: "${username}"`);
       return res.status(404).json({ message: "User not found. Please signup first!" });
     }
 
+    console.log(`User record found. Stored hashed password: "${user.password}"`);
+
     const isMatch = await bcrypt.compare(password, user.password);
+
+    console.log(`Password match result for user "${username}": ${isMatch}`);
 
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+
     res.json({ token, username: user.username, userId: user._id });
 
   } catch (err) {
@@ -110,7 +120,6 @@ const defaultQuestions = {
       type: "code",
       question: "Write a JS function to reverse a string.",
       language: "javascript",
-      // Signature without curly braces, LeetCode-style:
       signature: "function reverseString(str){",
       testCases: [
         { input: "hello", expectedOutput: "olleh" },
@@ -150,6 +159,7 @@ const defaultQuestions = {
   ]
 };
 
+
 // ---------- GET QUESTIONS ----------
 app.get('/questions', async (req, res) => {
   try {
@@ -174,8 +184,8 @@ app.get('/questions', async (req, res) => {
   }
 });
 
+
 // ---------- LIVE CODING JUDGE (JUDGE0) ----------
-// LeetCode-style: receives functionBody, signature, language, testCases
 const languageMap = {
   javascript: 63,
   python: 71,
@@ -184,10 +194,8 @@ const languageMap = {
   // Add more as needed
 };
 
-// Utility to wrap user code for LeetCode-style evaluation
 function wrapCode(fullFunctionCode, input, language) {
   if (language === "javascript") {
-    // Extract function name
     const match = fullFunctionCode.match(/function\s+([a-zA-Z0-9_]+)\s*\(/);
     const funcName = match ? match[1] : "func";
     return `
@@ -197,6 +205,7 @@ console.log(${funcName}(${JSON.stringify(input)}));
   }
   return fullFunctionCode;
 }
+
 app.post('/api/judge', async (req, res) => {
   const { sourceCode, language, testCases } = req.body;
 
@@ -210,7 +219,6 @@ app.post('/api/judge', async (req, res) => {
   for (const tc of testCases) {
     try {
       const codeToRun = wrapCode(sourceCode, tc.input, language);
-      // console.log('Code sent to Judge0:', codeToRun); // For debugging!
       const submission = await axios.post(
         'https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true',
         {
@@ -239,8 +247,8 @@ app.post('/api/judge', async (req, res) => {
   }
   res.json({ results });
 });
+
 // ---------- INTERVIEW FEEDBACK ----------
-// Feedback endpoint
 app.post('/interview/feedback', async (req, res) => {
   const { rounds } = req.body;
 
@@ -261,9 +269,8 @@ At the end:
 - Decide: "Selected" if >= 60% correct, otherwise "Not Selected"
 `;
 
-    // Format input for AI
     const formatted = rounds.map(r =>
-      `\n=== ${r.round} ===\n` +
+      `\n=== ${r.round.toUpperCase()} ===\n` +
       r.questions.map((q, i) =>
         `Q${i+1}: ${q.question}\nType: ${q.type}\nCorrect: ${q.correct || "N/A"}\nUser Answer: ${r.answers[i] || "No Answer"}`
       ).join("\n\n")
@@ -279,7 +286,6 @@ At the end:
     res.status(500).json({ error: "Failed to generate feedback" });
   }
 });
-
 
 // ---------- INTERVIEW HISTORY ----------
 app.get('/interview/history/:userId', async (req, res) => {
