@@ -93,49 +93,80 @@ app.post('/login', async (req, res) => {
 const defaultQuestions = {
   aptitude: [
     { type: "mcq", question: "If 3x + 5 = 20, what is x?", options: ["5", "4", "3", "15"], correct: "5" },
-    { type: "mcq", question: "What is the next number in the series: 2, 4, 8, 16, ?", options: ["18", "20", "24", "32"], correct: "32" },
-    { type: "text", question: "A train travels 60 km in 1.5 hours. What is its average speed?", correct: "40" },
-    { type: "mcq", question: "Which is the odd one out? Apple, Orange, Banana, Potato", options: ["Apple", "Orange", "Banana", "Potato"], correct: "Potato" },
-    { type: "mcq", question: "What is 25% of 80?", options: ["10", "15", "20", "25"], correct: "20" },
-    { type: "text", question: "If a book costs $120 and is sold at a 20% discount, what is the selling price?", correct: "96" }
+    { type: "mcq", question: "Next number: 2, 4, 8, 16, ?", options: ["18", "20", "24", "32"], correct: "32" },
+    { type: "mcq", question: "Odd one out: Apple, Orange, Banana, Potato", options: ["Apple", "Orange", "Banana", "Potato"], correct: "Potato" },
+    { type: "mcq", question: "25% of 80?", options: ["10", "15", "20", "25"], correct: "20" },
+    { type: "mcq", question: "12 + x = 25, x = ?", options: ["10", "12", "13", "15"], correct: "13" },
+    
+    // Blood relation question
+    { type: "mcq", question: "Pointing to a man, Ravi said, 'He is the son of my grandfather’s only son.' How is the man related to Ravi?", options: ["Brother", "Father", "Cousin", "Uncle"], correct: "Brother" },
+    
+    // Calendar question
+    { type: "mcq", question: "If 1st January 2025 is Wednesday, what day will 1st January 2026 be?", options: ["Thursday", "Friday", "Saturday", "Sunday"], correct: "Friday" },
+    
+    // Clock question
+    { type: "mcq", question: "At 3:15, the angle between hour and minute hand of a clock is?", options: ["7.5°", "0°", "90°", "52.5°"], correct: "7.5°" },
+    
+    { type: "mcq", question: "Square root of 144?", options: ["10", "11", "12", "14"], correct: "12" },
+    { type: "mcq", question: "Next in series: 5, 10, 20, 40, ?", options: ["60", "70", "80", "100"], correct: "80" }
   ],
+
   coding: [
     { type: "code", question: "Write a JS function to reverse a string." },
-    { type: "code", question: "Write a function to check if a number is prime." },
-    { type: "code", question: "Write a function to find the maximum in an array." },
-    { type: "mcq", question: "What is the output of: console.log(typeof null);", options: ["object", "null", "undefined", "number"], correct: "object" },
-    { type: "code", question: "Write a function to calculate factorial of n." },
-    { type: "mcq", question: "Which method is used to add elements to the end of an array in JS?", options: ["push()", "pop()", "shift()", "unshift()"], correct: "push()" }
+    { type: "code", question: "Write a function to check if a number is prime." }
   ],
+
   technical: [
-    { type: "text", question: "Explain the concept of closures in JavaScript." },
-    { type: "text", question: "What is the difference between == and === in JS?" },
-    { type: "mcq", question: "Which HTML tag is used for inserting an image?", options: ["<img>", "<src>", "<image>", "<pic>"], correct: "<img>" },
-    { type: "text", question: "Explain what is REST API." },
-    { type: "mcq", question: "Which is not a CSS selector?", options: [".class", "#id", ":hover", "@media"], correct: "@media" },
-    { type: "text", question: "What is the purpose of useEffect hook in React?" }
+    { type: "mcq", question: "HTML tag for image?", options: ["<img>", "<src>", "<image>", "<pic>"], correct: "<img>" },
+    { type: "mcq", question: "Not a CSS selector?", options: [".class", "#id", ":hover", "@media"], correct: "@media" },
+    { type: "mcq", question: "JS method to convert JSON to object?", options: ["JSON.parse()", "JSON.stringify()", "Object.fromJSON()", "JSON.object()"], correct: "JSON.parse()" },
+    { type: "mcq", question: "useState returns?", options: ["State variable", "Function to update", "Both", "None"], correct: "Both" },
+    { type: "mcq", question: "HTTP method to update data?", options: ["GET", "POST", "PUT", "DELETE"], correct: "PUT" },
+    { type: "mcq", question: "CSS property to change text color?", options: ["font-color", "text-color", "color", "font-style"], correct: "color" },
+    { type: "mcq", question: "JS keyword for block-scoped variable?", options: ["var", "let", "const", "dim"], correct: "let" },
+    { type: "mcq", question: "Which HTML attribute specifies alternative text?", options: ["alt", "title", "src", "text"], correct: "alt" },
+    { type: "mcq", question: "Which method adds element at start of array?", options: ["push()", "pop()", "shift()", "unshift()"], correct: "unshift()" },
+    { type: "mcq", question: "Which CSS property changes element background?", options: ["color", "bgcolor", "background", "background-color"], correct: "background-color" }
   ],
+
   hr: [
     { type: "text", question: "Tell me about yourself." },
     { type: "text", question: "Why do you want to join our company?" },
     { type: "text", question: "Describe a challenge you faced and how you overcame it." },
     { type: "mcq", question: "Are you comfortable with relocation?", options: ["Yes", "No"], correct: "Yes" },
-    { type: "text", question: "Where do you see yourself in 5 years?" },
-    { type: "text", question: "What are your strengths and weaknesses?" }
+    { type: "text", question: "Where do you see yourself in 5 years?" }
   ]
 };
 
+
 // ---------- GET QUESTIONS ----------
+// GET QUESTIONS
 app.get('/questions', async (req, res) => {
   try {
     const { round = "aptitude", count = 6 } = req.query;
-    const questions = defaultQuestions[round]?.slice(0, Number(count)) || [];
+
+    let questions = defaultQuestions[round] || [];
+
+    // Apply type filters
+    if (round === "aptitude" || round === "technical") {
+      questions = questions.filter(q => q.type === "mcq");
+    }
+    if (round === "coding") {
+      questions = questions.filter(q => q.type === "code");
+    }
+    if (round === "hr") {
+      questions = questions.filter(q => q.type === "text" || q.type === "mcq");
+    }
+
+    // Now slice AFTER filtering
+    questions = questions.slice(0, Number(count));
+
     res.json({ questions });
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch questions" });
   }
 });
-
+ 
 // ---------- INTERVIEW FEEDBACK ----------
 app.post('/interview/feedback', async (req, res) => {
   try {
@@ -181,15 +212,20 @@ app.post('/interview/feedback', async (req, res) => {
     }
 
     let feedbacks = responseJSON.feedbacks;
-    if (Array.isArray(feedbacks) && feedbacks.length === 24 && Array.isArray(feedbacks[0])) {
-      const formatted = feedbacks.map(fbArr =>
-        `Your Answer: ${fbArr[0]}\nCorrect Answer: ${fbArr[1]}`
-      );
-      feedbacks = [];
-      for (let i = 0; i < 24; i += 6) {
-        feedbacks.push(formatted.slice(i, i + 6));
-      }
-    }
+    // Format feedbacks per round dynamically
+if (Array.isArray(feedbacks) && Array.isArray(feedbacks[0])) {
+  const formatted = feedbacks.map(fbArr =>
+    `Your Answer: ${fbArr[0]}\nCorrect Answer: ${fbArr[1]}`
+  );
+
+  feedbacks = [];
+  let start = 0;
+  for (const r of rounds) {
+    const roundCount = r.questions.length;
+    feedbacks.push(formatted.slice(start, start + roundCount));
+    start += roundCount;
+  }
+}
 
     if (userId) {
       await InterviewHistory.create({
