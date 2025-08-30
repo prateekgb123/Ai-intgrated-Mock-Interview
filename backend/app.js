@@ -19,8 +19,7 @@ const app = express();
 app.use(express.json());
 app.use(cors({
   origin: [
-    'http://localhost:5173',
-    'https://ai-intgrated-mock-interview-frontend.onrender.com',
+    'https://ai-intgrated-mock-interview-frontend.onrender.com'
   ],
   credentials: true,
 }));
