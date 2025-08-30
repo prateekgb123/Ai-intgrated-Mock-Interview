@@ -6,11 +6,17 @@ import History from './components/History';
 import Footer from './components/Footer';
 import './App.css';
 import logo from './logo.png';
-import ai from './ai.png'
+import ai from './ai.png';
+
+// Import round images
+import codingImage from './icons/coding.png';
+import technicalImage from './icons/technical.png';
+import hrImage from './icons/hr.png';
+import aptitudeImage from './icons/aptitude.jpeg';
+
 function HomePage({ onGetStarted }) {
-  // Added style to ensure display flex column and grow
   return (
-    <div className="home-beautiful" style={{ display: 'flex', flexDirection: 'column', flexGrow: 1,margin:"0px 20px" }}>
+    <div className="home-beautiful">
       <header className="hero-section">
         <div className="hero-text">
           <h1>
@@ -27,7 +33,7 @@ function HomePage({ onGetStarted }) {
           <img src={ai} alt="AI Interview" />
         </div>
       </header>
-      <section className="how-it-works-section" id="how-it-works" style={{ flexGrow: 1 }}>
+      <section className="how-it-works-section" id="how-it-works">
         <h2>How It Works</h2>
         <div className="steps-container">
           <div className="step-card">
@@ -60,7 +66,7 @@ function App() {
   const [token, setToken] = useState('');
   const [username, setUsername] = useState('');
   const [userId, setUserId] = useState('');
-  const [activeTab, setActiveTab] = useState('home'); // Default to Home
+  const [activeTab, setActiveTab] = useState('home');
   const [showSignup, setShowSignup] = useState(false);
 
   const [progress, setProgress] = useState({
@@ -75,10 +81,10 @@ function App() {
   const [finalResult, setFinalResult] = useState(null);
 
   const rounds = [
-    { id: 'aptitude', title: 'Aptitude Round', type: 'mcq' },
-    { id: 'coding', title: 'Coding Round', type: 'code' },
-    { id: 'technical', title: 'Technical Round', type: 'mcq' },
-    { id: 'hr', title: 'HR Round', type: 'text' },
+    { id: 'aptitude', title: 'Aptitude Round', type: 'mcq', image: aptitudeImage },
+    { id: 'coding', title: 'Coding Round', type: 'code', image: codingImage },
+    { id: 'technical', title: 'Technical Round', type: 'mcq', image: technicalImage },
+    { id: 'hr', title: 'HR Round', type: 'text', image: hrImage },
   ];
 
   const handleLogout = () => {
@@ -138,58 +144,18 @@ function App() {
     setSelectedRound(null);
   };
 
-  const handleGetStarted = () => {
-    setActiveTab('dashboard');
-  };
+  const handleGetStarted = () => setActiveTab('dashboard');
 
   if (!token) {
     return (
-      <div className="auth-layout" style={{ display: 'flex', height: '100vh' }}>
-        <div
-          className="auth-left"
-          style={{
-            flex: 1,
-            backgroundImage: "url('https://images.unsplash.com/photo-1522071820081-009f0129c71c')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textAlign: 'center',
-            padding: '2rem',
-          }}
-        >
-          <h1
-            style={{
-              fontSize: '2.5rem',
-              fontWeight: 'bold',
-              textShadow: '2px 2px 6px rgba(0,0,0,0.6)',
-            }}
-          >
+      <div className="auth-layout">
+        <div className="auth-left">
+          <h1>
             Welcome to <br /> AI-Powered Mock Interview
           </h1>
         </div>
-        <div
-          className="auth-right"
-          style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#f9f9f9',
-          }}
-        >
-          <div
-            style={{
-              width: '100%',
-              maxWidth: '400px',
-              background: 'white',
-              padding: '2rem',
-              borderRadius: '12px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            }}
-          >
+        <div className="auth-right">
+          <div className="auth-box">
             {!showSignup ? (
               <Login
                 setToken={setToken}
@@ -210,27 +176,15 @@ function App() {
     <div className="app-container">
       <div className="dashboard-layout">
         <nav className="navbar">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <img src={logo} alt="AI Logo" style={{ height: 50, borderRadius: '50%', verticalAlign: 'middle' }} />
-            <h2 style={{ fontWeight: 700, letterSpacing: '1px' }}>AI MOCK INTERVIEW</h2>
+          <div className="logo-title">
+            <img src={logo} alt="AI Logo" className="logo-image" />
+            <h2>AI MOCK INTERVIEW</h2>
           </div>
-
-          <div className="nav-links" style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+          <div className="nav-links">
             <NavButton active={activeTab === 'home'} onClick={() => setActiveTab('home')} label="Home" />
             <NavButton active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} label="Dashboard" />
             <NavButton active={activeTab === 'history'} onClick={() => setActiveTab('history')} label="History" />
-            <span
-              style={{
-                marginLeft: 10,
-                padding: '4px 14px',
-                background: 'rgba(255,255,255,0.08)',
-                borderRadius: '20px',
-                fontWeight: 500,
-                fontSize: '1rem',
-              }}
-            >
-              {username}
-            </span>
+            <span className="username-badge">{username}</span>
             <NavButton onClick={handleLogout} label="Logout" danger />
           </div>
         </nav>
@@ -239,66 +193,29 @@ function App() {
           {activeTab === 'home' ? (
             <HomePage onGetStarted={handleGetStarted} />
           ) : finalResult ? (
-            <div
-              style={{
-                padding: '2rem',
-                background: 'white',
-                borderRadius: '12px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                overflowY: 'auto',
-                fontSize: '1.1rem',
-                whiteSpace: 'pre-wrap',
-              }}
-            >
+            <div className="final-result">
               {finalResult.split('Decision:')[0]}
-              <h2 style={{ marginTop: '1rem', fontWeight: 'bold' }}>
+              <h2 className="decision-title">
                 Decision:{finalResult.includes('Decision:') ? finalResult.split('Decision:')[1].trim() : ''}
               </h2>
             </div>
           ) : activeTab === 'dashboard' ? (
             !selectedRound ? (
-              <div
-                className="rounds-grid"
-                style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}
-              >
-                {rounds.map(round => {
+              <div className="rounds-grid">
+                {rounds.map((round) => {
                   const unlocked = progress[round.id];
                   return (
-                    <div
-                      key={round.id}
-                      style={{
-                        padding: '1.5rem',
-                        borderRadius: '12px',
-                        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                        background: 'white',
-                        textAlign: 'center',
-                      }}
-                    >
+                    <div key={round.id} className="round-card" style={{ cursor: unlocked ? 'pointer' : 'default' }}>
+                      {round.image && (
+                        <img src={round.image} alt={`${round.title} icon`} className="round-image" />
+                      )}
                       <h3>{round.title}</h3>
                       {unlocked ? (
-                        <button
-                          onClick={() => setSelectedRound(round.id)}
-                          style={{
-                            marginTop: '1rem',
-                            padding: '0.5rem 1rem',
-                            borderRadius: '8px',
-                            background: '#007bff',
-                            color: 'white',
-                          }}
-                        >
+                        <button className="start-btn" onClick={() => setSelectedRound(round.id)}>
                           Start
                         </button>
                       ) : (
-                        <button
-                          disabled
-                          style={{
-                            marginTop: '1rem',
-                            padding: '0.5rem 1rem',
-                            borderRadius: '8px',
-                            background: '#ccc',
-                            color: '#666',
-                          }}
-                        >
+                        <button className="start-btn locked" disabled>
                           Locked
                         </button>
                       )}
@@ -327,20 +244,7 @@ function NavButton({ active, onClick, label, danger }) {
   return (
     <button
       onClick={onClick}
-      style={{
-        background: danger ? '#ff3b3b' : active ? '#fff' : 'transparent',
-        color: danger ? '#fff' : active ? '#007bff' : '#fff',
-        fontWeight: active ? 700 : 500,
-        border: 'none',
-        outline: 'none',
-        padding: '8px 18px',
-        borderRadius: '22px',
-        cursor: 'pointer',
-        boxShadow: active ? '0 2px 12px rgba(0,0,0,0.08)' : 'none',
-        fontSize: '1rem',
-        transition: 'all 0.2s',
-        marginLeft: danger ? '1rem' : 0,
-      }}
+      className={`${danger ? 'danger-btn' : ''} ${active ? 'active-btn' : ''}`}
     >
       {label}
     </button>

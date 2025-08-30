@@ -12,3 +12,18 @@
   align-items: center;     /* center vertically */
   box-sizing: border-box;
 }
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .app-footer {
+    padding: 1rem 1rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .app-footer {
+    padding: 0.75rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}

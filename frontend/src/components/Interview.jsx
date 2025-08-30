@@ -212,23 +212,24 @@ function Interview({ roundKey, onComplete }) {
               Previous Question
             </button>
           )}
-          {current < questions.length - 1 ? (
-            <button
-              onClick={() => setCurrent(current + 1)}
-              disabled={!answers[current]?.trim()}
-              className="button"
-            >
-              Next Question
-            </button>
-          ) : (
-            <button
-              onClick={finishRound}
-              disabled={!answers[current]?.trim()}
-              className="button finish"
-            >
-              Finish Test
-            </button>
-          )}
+         {current < questions.length - 1 ? (
+  <button
+    onClick={() => setCurrent(current + 1)}
+    disabled={!answers[current]?.trim()}
+    className="button"
+  >
+    Next Question
+  </button>
+) : (
+  <button
+    onClick={finishRound}
+    disabled={!answers[current]?.trim()}
+    className="button finish"
+  >
+    {roundKey === "hr" ? "Finish Test" : "Next Section"}
+  </button>
+)}
+
         </div>
       </div>
     </div>
