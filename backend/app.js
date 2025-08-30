@@ -19,7 +19,7 @@ const app = express();
 app.use(express.json());
 app.use(cors({
   origin: [
-    'https://ai-intgrated-mock-interview-frontend.onrender.com'
+    'https://ai-intgrated-mock-interview-1.onrender.com'
   ],
   credentials: true,
 }));
