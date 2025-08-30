@@ -30,7 +30,7 @@ function Interview({ roundKey, onComplete }) {
   useEffect(() => {
     async function fetchRoundQuestions() {
       const count = ROUND_COUNTS[roundKey] || 6;
-      const url = `http://localhost:3000/questions?round=${roundKey}&count=${count}`;
+      const url = `https://ai-intgrated-mock-interview.onrender.com/questions?round=${roundKey}&count=${count}`;
       try {
         const res = await fetch(url);
         const data = await res.json();
@@ -80,7 +80,7 @@ function Interview({ roundKey, onComplete }) {
     setCodeResult(null);
     const q = questions[current];
     try {
-      const res = await axios.post("http://localhost:3000/api/judge", {
+      const res = await axios.post("https://ai-intgrated-mock-interview.onrender.com/api/judge", {
         sourceCode: answers[current],
         language: q.language || "javascript",
         testCases: q.testCases,

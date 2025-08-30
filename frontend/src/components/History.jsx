@@ -9,7 +9,7 @@ function History({ userId }) {
     if (!userId) return;
     setLoading(true);
     setError('');
-    fetch(`http://localhost:3000/interview/history/${userId}`)
+    fetch(`https://ai-intgrated-mock-interview.onrender.com/interview/history/${userId}`)
       .then(res => res.json())
       .then(data => {
         setHistory(data);
