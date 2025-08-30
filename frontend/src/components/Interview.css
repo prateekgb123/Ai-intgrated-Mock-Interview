@@ -82,6 +82,12 @@
 .animated-fade {
   animation: fadeIn 0.7s;
 }
+.nav-buttons {
+  display: flex;
+  gap: 1rem; /* Adds gap between buttons */
+  justify-content: center; /* Optional: center the buttons horizontally */
+  margin-top: 1.5rem;
+}
 
 @keyframes fadeIn {
   from {
