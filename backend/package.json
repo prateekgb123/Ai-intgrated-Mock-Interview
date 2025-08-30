@@ -1,4 +1,13 @@
 {
+  "name": "ai-integrated-mock-interview",
+  "version": "1.0.0",
+  "description": "Your app description",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "axios": "^1.11.0",
@@ -8,5 +17,8 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
