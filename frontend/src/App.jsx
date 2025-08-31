@@ -128,7 +128,7 @@ function App() {
 
     if (roundId === 'hr') {
       try {
-        const res = await fetch('http://localhost:3000/interview/feedback', {
+        const res = await fetch('https://ai-intgrated-mock-interview.onrender.com/interview/feedback', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ rounds: updatedRounds, userId }),
