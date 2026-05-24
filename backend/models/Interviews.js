@@ -1,14 +1,41 @@
-import mongoose from 'mongoose';
+const mongoose = require("mongoose");
 
-const interviewSchema = new mongoose.Schema({
-  userId: String,
-  question: String,
-  answer: String,
-  feedback: String,
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+const interviewSchema =
+  new mongoose.Schema({
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
 
-export default mongoose.model('Interviews', interviewSchema);
+    company: String,
+
+    role: String,
+
+    interviewType: {
+      type: String,
+      enum: [
+        "HR",
+        "Technical",
+        "Coding",
+        "System Design",
+      ],
+    },
+
+    question: String,
+
+    answer: String,
+
+    feedback: String,
+
+    score: Number,
+
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+  });
+
+module.exports = mongoose.model(
+  "Interviews",
+  interviewSchema
+);

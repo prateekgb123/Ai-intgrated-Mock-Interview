@@ -1,68 +1,96 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import './Authform.css';
+import { useState } from "react";
 
-function Login({ setToken, setUsername, setUserId, onSignupClick }) {
-  const [data, setData] = useState({ username: '', password: '' });
-  const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState('');
+import { Link } from "react-router-dom";
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setMsg('');
+import API from "../services/api";
 
-  // Trim username and password before sending
-  const trimmedData = {
-    username: data.username.trim(),
-    password: data.password.trim(),
+const Login = () => {
+
+  const [formData, setFormData] =
+    useState({
+      email: "",
+      password: "",
+    });
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]:
+        e.target.value,
+    });
   };
 
-  try {
-    const res = await axios.post('https://ai-intgrated-mock-interview.onrender.com/login', trimmedData);
-    setToken(res.data.token);
-    setUsername(res.data.username);
-    setUserId(res.data.userId);
-  } catch (error) {
-    if (error.response?.status === 404) {
-      setMsg('No such user found. Please signup first!');
-    } else {
-      setMsg('Login failed: ' + (error.response?.data?.message || error.message));
-    }
-  }
-  setLoading(false);
-};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
+    try {
+
+      const res = await API.post(
+        "/auth/login",
+        formData
+      );
+
+      localStorage.setItem(
+        "token",
+        res.data.token
+      );
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(res.data.user)
+      );
+
+      alert("Login Successful");
+
+      window.location.href =
+        "/home";
+
+    } catch (error) {
+
+      alert("Login Failed");
+
+    }
+  };
 
   return (
-    <form className="auth-form" onSubmit={handleSubmit}>
-      <h2>Sign In</h2>
-      {msg && <div className="form-msg">{msg}</div>}
-      <label>Username</label>
-      <input
-        type="text"
-        required
-        autoComplete="username"
-        onChange={e => setData({ ...data, username: e.target.value })}
-      />
-      <label>Password</label>
-      <input
-        type="password"
-        required
-        autoComplete="current-password"
-        onChange={e => setData({ ...data, password: e.target.value })}
-      />
-      <button type="submit" disabled={loading}>
-        {loading ? "Signing in..." : "Sign In"}
-      </button>
-      <div className="auth-switch">
-        <span>Don't have an account? </span>
-        <button type="button" className="link-btn" onClick={onSignupClick}>
-          Sign up
+    <div className="auth-container">
+
+      <h2>Login</h2>
+
+      <form onSubmit={handleSubmit}>
+
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          onChange={handleChange}
+        />
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          onChange={handleChange}
+        />
+
+        <button type="submit">
+          Login
         </button>
-      </div>
-    </form>
+
+      </form>
+
+      <p className="auth-switch">
+
+        Don't have an account?
+
+        <Link to="/signup">
+          Signup
+        </Link>
+
+      </p>
+
+    </div>
   );
-}
+};
 
 export default Login;

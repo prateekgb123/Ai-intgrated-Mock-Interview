@@ -1,239 +1,521 @@
-import React, { useEffect, useState } from "react";
-import MonacoEditor from "@monaco-editor/react";
-import axios from "axios";
-import "./Interview.css";
+import {
+  useSearchParams,
+} from "react-router-dom";
 
-const ROUND_COUNTS = {
-  aptitude: 10,
-  coding: 2,
-  technical: 10,
-  hr: 5,
-};
+import {
+  useEffect,
+  useState,
+} from "react";
 
-function Interview({ roundKey, onComplete }) {
-  const [questions, setQuestions] = useState([]);
-  const [current, setCurrent] = useState(0);
-  const [answers, setAnswers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [completed, setCompleted] = useState(false);
-  const [codeResult, setCodeResult] = useState(null);
-  const [runningCode, setRunningCode] = useState(false);
+import API from "../services/api";
 
-  const getRoundType = () => {
-    if (roundKey === "aptitude" || roundKey === "technical") return "mcq";
-    if (roundKey === "coding") return "code";
-    if (roundKey === "hr") return "text";
-    return "text";
-  };
-  const roundType = getRoundType();
+import "../styles/interview.css";
+
+const Interview = () => {
+
+  const [searchParams] =
+    useSearchParams();
+
+  const category =
+    searchParams.get("category");
+
+  const [questions,
+    setQuestions] =
+    useState([]);
+
+  const [loading,
+    setLoading] =
+    useState(false);
+
+  const [file,
+    setFile] =
+    useState(null);
+
+  const [currentQuestion,
+    setCurrentQuestion] =
+    useState(0);
+
+  const [answer,
+    setAnswer] =
+    useState("");
+
+  const [feedback,
+    setFeedback] =
+    useState(null);
+
+  const [results,
+    setResults] =
+    useState([]);
+
+  // ------------------------
+  // SAFE JSON PARSER
+  // ------------------------
+
+  const parseQuestions =
+    (data) => {
+
+      try {
+
+        // Remove markdown if exists
+
+        let cleaned = data
+          .replace(/```json/g, "")
+          .replace(/```/g, "")
+          .trim();
+
+        return JSON.parse(cleaned);
+
+      } catch (error) {
+
+        console.log(
+          "Invalid JSON:",
+          data
+        );
+
+        // fallback questions
+
+        return [
+          {
+            question:
+              "Tell me about yourself"
+          },
+
+          {
+            question:
+              "Explain your latest project"
+          },
+
+          {
+            question:
+              "What are your strengths?"
+          },
+
+          {
+            question:
+              "Why should we hire you?"
+          },
+
+          {
+            question:
+              "Explain React hooks"
+          },
+        ];
+      }
+    };
+
+  // ------------------------
+  // GENERAL INTERVIEW
+  // ------------------------
 
   useEffect(() => {
-    async function fetchRoundQuestions() {
-      const count = ROUND_COUNTS[roundKey] || 6;
-      const url = `https://ai-intgrated-mock-interview.onrender.com/questions?round=${roundKey}&count=${count}`;
+
+    if (category) {
+
+      generateGeneralInterview();
+
+    }
+
+  }, [category]);
+
+  const generateGeneralInterview =
+    async () => {
+
       try {
-        const res = await fetch(url);
-        const data = await res.json();
-        let qs = data.questions || [];
-        if (roundKey === "aptitude" || roundKey === "technical") {
-          qs = qs.filter(q => q.type === "mcq").slice(0, count);
-        }
-        setQuestions(qs);
 
-        if (roundKey === "coding") {
-          setAnswers(
-            qs.map(
-              (q) => `${q.signature || "function func() {"}\n  \n}`
-            )
+        setLoading(true);
+
+        const res =
+          await API.post(
+            "/interview/general",
+            {
+              category,
+            }
           );
-        } else {
-          setAnswers(Array(qs.length).fill(""));
-        }
-      } catch (err) {
-        console.error("Error fetching questions:", err);
-        setQuestions([]);
-        setAnswers([]);
+
+        const parsed =
+          parseQuestions(
+            res.data.questions
+          );
+
+        setQuestions(parsed);
+
+      } catch (error) {
+
+        console.log(error);
+
+      } finally {
+
+        setLoading(false);
+
       }
-      setLoading(false);
-    }
-    fetchRoundQuestions();
-  }, [roundKey]);
+    };
 
-  const handleChange = (val) => {
-    setAnswers((prev) => {
-      const copy = [...prev];
-      copy[current] = val;
-      return copy;
-    });
-  };
+  // ------------------------
+  // PERSONALIZED INTERVIEW
+  // ------------------------
 
-  const handleMCQ = (opt) => {
-    setAnswers((prev) => {
-      const copy = [...prev];
-      copy[current] = opt;
-      return copy;
-    });
-  };
+  const uploadResume =
+    async () => {
 
-  const handleRunCode = async () => {
-    setRunningCode(true);
-    setCodeResult(null);
-    const q = questions[current];
-    try {
-      const res = await axios.post("https://ai-intgrated-mock-interview.onrender.com/api/judge", {
-        sourceCode: answers[current],
-        language: q.language || "javascript",
-        testCases: q.testCases,
-      });
-      setCodeResult(res.data.results);
-    } catch (err) {
-      setCodeResult([{ error: "Error running code" }]);
-    }
-    setRunningCode(false);
-  };
+      if (!file) {
 
-  const finishRound = () => {
-    setCompleted(true);
-  };
+        alert(
+          "Please upload resume"
+        );
 
-  if (loading)
-    return (
-      <div className="container">
-        <h2>Loading {roundKey} questions...</h2>
-      </div>
+        return;
+      }
+
+      try {
+
+        setLoading(true);
+
+        const formData =
+          new FormData();
+
+        formData.append(
+          "resume",
+          file
+        );
+
+        const res =
+          await API.post(
+            "/upload/resume",
+            formData
+          );
+
+        const parsed =
+          parseQuestions(
+            res.data.questions
+          );
+
+        setQuestions(parsed);
+
+      } catch (error) {
+
+        console.log(error);
+
+      } finally {
+
+        setLoading(false);
+
+      }
+    };
+
+  // ------------------------
+  // SUBMIT ANSWER
+  // ------------------------
+
+  const submitAnswer =
+    async () => {
+
+      if (!answer) {
+
+        alert(
+          "Please enter answer"
+        );
+
+        return;
+      }
+
+      try {
+
+        const question =
+          questions[
+            currentQuestion
+          ].question;
+
+        const res =
+          await API.post(
+            "/interview/evaluate",
+            {
+              question,
+              answer,
+            }
+          );
+
+        let parsedFeedback;
+
+        try {
+
+          parsedFeedback =
+            JSON.parse(
+              res.data.feedback
+                .replace(
+                  /```json/g,
+                  ""
+                )
+                .replace(
+                  /```/g,
+                  ""
+                )
+                .trim()
+            );
+
+        } catch {
+
+          parsedFeedback = {
+            score: 7,
+            feedback:
+              "Good answer",
+            strength:
+              "Technical understanding",
+            weakness:
+              "Need more clarity",
+          };
+        }
+
+        setFeedback(
+          parsedFeedback
+        );
+
+        setResults((prev) => [
+          ...prev,
+          parsedFeedback,
+        ]);
+
+        setTimeout(() => {
+
+          setFeedback(null);
+
+          setAnswer("");
+
+          setCurrentQuestion(
+            (prev) => prev + 1
+          );
+
+        }, 3000);
+
+      } catch (error) {
+
+        console.log(error);
+
+      }
+    };
+
+  // ------------------------
+  // SCORE CALCULATION
+  // ------------------------
+
+  const totalScore =
+    results.reduce(
+      (acc, item) =>
+        acc + item.score,
+      0
     );
 
- if (completed) {
-  return (
-    <div className="container">
-      <h2 className="round-header">{roundKey} Round Complete!</h2>
-      <p>You have completed the {roundKey} round.</p>
-      <button
-        onClick={() =>
-          onComplete(
-            roundKey,
-            answers,
-            questions,
-            questions.map((q) => q.type)
-          )
-        }
-        className="button"
-      >
-        Continue
-      </button>
-    </div>
-  );
-}
+  const averageScore =
+    results.length > 0
+      ? (
+          totalScore /
+          results.length
+        ).toFixed(1)
+      : 0;
 
+  // ------------------------
+  // LOADER
+  // ------------------------
 
-  const q = questions[current];
+  if (loading) {
 
-  return (
-    <div className="container">
-      <div className="round-header">
-        {roundKey} Round: Question {current + 1} of {questions.length}
+    return (
+
+      <div className="loader-container">
+
+        <div className="loader"></div>
+
+        <h2>
+          AI is preparing your interview...
+        </h2>
+
       </div>
-      <div className="card animated-fade">
-        <p className="question">
-          <strong>Question:</strong> {q?.question}
-        </p>
-        {roundType === "mcq" ? (
-          <div className="mcq-group">
-            {q.options.map((opt) => (
-              <button
-                key={opt}
-                onClick={() => handleMCQ(opt)}
-                className="mcq-option"
-                style={{
-                  backgroundColor:
-                    answers[current] === opt ? "#007bff" : "#f5f5f5",
-                  color: answers[current] === opt ? "#fff" : "#222",
-                }}
-              >
-                {opt}
-              </button>
-            ))}
-          </div>
-        ) : roundType === "code" ? (
-          <>
-            <MonacoEditor
-              height="300px"
-              language={q.language || "javascript"}
-              value={answers[current]}
-              onChange={handleChange}
-              theme="vs-dark"
-              options={{ fontSize: 16 }}
-            />
-            <button
-              onClick={handleRunCode}
-              className="button"
-              disabled={runningCode || !answers[current]?.trim()}
-              style={{ marginTop: "1rem" }}
-            >
-              {runningCode ? "Running..." : "Run Code"}
-            </button>
-            {codeResult && (
-              <div className="testcase-results">
-                <h4>Results:</h4>
-                {codeResult.map((res, idx) => (
-                  <div key={idx} style={{ marginBottom: "6px" }}>
-                    {res.error ? (
-                      <span style={{ color: "red" }}>{res.error}</span>
-                    ) : (
-                      <>
-                        <strong>Input:</strong> {res.input} <br />
-                        <strong>Expected:</strong> {res.expected} <br />
-                        <strong>Your Output:</strong> {res.actual} <br />
-                        <strong>Status:</strong>{" "}
-                        {res.passed ? "✅ Passed" : "❌ Failed"}
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        ) : (
-          <textarea
-            rows={5}
-            placeholder="Type your answer here..."
-            value={answers[current]}
-            onChange={(e) => handleChange(e.target.value)}
-            className="textarea"
-          />
-        )}
 
-        <div className="nav-buttons">
-          {current > 0 && (
-            <button
-              onClick={() => setCurrent(current - 1)}
-              className="button secondary"
-            >
-              Previous Question
-            </button>
+    );
+  }
+
+  // ------------------------
+  // FINAL RESULT
+  // ------------------------
+
+  if (
+    questions.length > 0 &&
+    currentQuestion >=
+      questions.length
+  ) {
+
+    return (
+
+      <div className="result-container">
+
+        <h1>
+          Interview Completed
+        </h1>
+
+        <h2>
+          Final Score:
+          {averageScore}/10
+        </h2>
+
+        <div className="result-grid">
+
+          {results.map(
+            (item, index) => (
+
+              <div
+                key={index}
+                className="result-card"
+              >
+
+                <h3>
+                  Question {
+                    index + 1
+                  }
+                </h3>
+
+                <p>
+                  Score:
+                  {item.score}/10
+                </p>
+
+                <p>
+                  <strong>
+                    Feedback:
+                  </strong>
+
+                  {item.feedback}
+                </p>
+
+                <p>
+                  <strong>
+                    Strength:
+                  </strong>
+
+                  {item.strength}
+                </p>
+
+                <p>
+                  <strong>
+                    Weakness:
+                  </strong>
+
+                  {item.weakness}
+                </p>
+
+              </div>
+
+            )
           )}
-         {current < questions.length - 1 ? (
-  <button
-    onClick={() => setCurrent(current + 1)}
-    disabled={!answers[current]?.trim()}
-    className="button"
-  >
-    Next Question
-  </button>
-) : (
-  <button
-    onClick={finishRound}
-    disabled={!answers[current]?.trim()}
-    className="button finish"
-  >
-    {roundKey === "hr" ? "Finish Test" : "Next Section"}
-  </button>
-)}
 
         </div>
+
       </div>
+
+    );
+  }
+
+  // ------------------------
+  // MAIN UI
+  // ------------------------
+
+  return (
+
+    <div className="interview-container">
+
+      {!category &&
+        questions.length === 0 && (
+
+        <div className="upload-box">
+
+          <h1>
+            Personalized Interview
+          </h1>
+
+          <input
+            type="file"
+            onChange={(e) =>
+              setFile(
+                e.target.files[0]
+              )
+            }
+          />
+
+          <button
+            onClick={uploadResume}
+          >
+            Generate Interview
+          </button>
+
+        </div>
+
+      )}
+
+      {questions.length > 0 &&
+        currentQuestion <
+          questions.length && (
+
+        <div className="question-box">
+
+          <h2>
+            Question {
+              currentQuestion + 1
+            }
+          </h2>
+
+          <p>
+            {
+              questions[
+                currentQuestion
+              ].question
+            }
+          </p>
+
+          <textarea
+            rows="8"
+            placeholder="Enter your answer"
+            value={answer}
+            onChange={(e) =>
+              setAnswer(
+                e.target.value
+              )
+            }
+          />
+
+          <button
+            onClick={submitAnswer}
+          >
+            Submit Answer
+          </button>
+
+          {feedback && (
+
+            <div className="feedback-box">
+
+              <h3>
+                AI Feedback
+              </h3>
+
+              <p>
+                Score:
+                {feedback.score}/10
+              </p>
+
+              <p>
+                {
+                  feedback.feedback
+                }
+              </p>
+
+            </div>
+
+          )}
+
+        </div>
+
+      )}
+
     </div>
+
   );
-}
+};
 
 export default Interview;

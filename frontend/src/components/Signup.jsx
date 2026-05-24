@@ -1,72 +1,97 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import './Authform.css';
+import { useState } from "react";
 
-function Signup({ onBackToLogin }) {
-  const [data, setData] = useState({ username: '', email: '', password: '' });
-  const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState('');
+import { Link } from "react-router-dom";
+
+import API from "../services/api";
+
+const Signup = () => {
+
+  const [formData, setFormData] =
+    useState({
+      name: "",
+      email: "",
+      password: "",
+    });
+
+  const handleChange = (e) => {
+
+    setFormData({
+      ...formData,
+      [e.target.name]:
+        e.target.value,
+    });
+
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMsg('');
 
-    // Trim inputs before sending
-    const trimmedData = {
-      username: data.username.trim(),
-      email: data.email.trim(),
-      password: data.password.trim(),
-    };
+    e.preventDefault();
 
     try {
-      await axios.post('https://ai-intgrated-mock-interview.onrender.com/signup', trimmedData);
-      setMsg('Signup successful! You can now sign in.');
-      setTimeout(() => {
-        onBackToLogin();
-      }, 1300);
+
+      await API.post(
+        "/auth/signup",
+        formData
+      );
+
+      alert("Signup Successful");
+
+      window.location.href =
+        "/login";
+
     } catch (error) {
-      setMsg('Signup failed: ' + (error.response?.data?.message || error.message));
+
+      alert("Signup Failed");
+
     }
-    setLoading(false);
   };
 
   return (
-    <form className="auth-form" onSubmit={handleSubmit}>
-      <h2>Sign Up</h2>
-      {msg && <div className="form-msg">{msg}</div>}
-      <label>Username</label>
-      <input
-        type="text"
-        required
-        autoComplete="username"
-        onChange={e => setData({ ...data, username: e.target.value })}
-      />
-      <label>Email</label>
-      <input
-        type="email"
-        required
-        autoComplete="email"
-        onChange={e => setData({ ...data, email: e.target.value })}
-      />
-      <label>Password</label>
-      <input
-        type="password"
-        required
-        autoComplete="new-password"
-        onChange={e => setData({ ...data, password: e.target.value })}
-      />
-      <button type="submit" disabled={loading}>
-        {loading ? 'Signing up...' : 'Sign Up'}
-      </button>
-      <div className="auth-switch">
-        <span>Already have an account? </span>
-        <button type="button" className="link-btn" onClick={onBackToLogin}>
-          Sign in
+    <div className="auth-container">
+
+      <h2>Signup</h2>
+
+      <form onSubmit={handleSubmit}>
+
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          onChange={handleChange}
+        />
+
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          onChange={handleChange}
+        />
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          onChange={handleChange}
+        />
+
+        <button type="submit">
+          Signup
         </button>
-      </div>
-    </form>
+
+      </form>
+
+      <p className="auth-switch">
+
+        Already have an account?
+
+        <Link to="/login">
+          Login
+        </Link>
+
+      </p>
+
+    </div>
   );
-}
+};
 
 export default Signup;

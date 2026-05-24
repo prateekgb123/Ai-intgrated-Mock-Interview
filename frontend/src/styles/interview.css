@@ -1,0 +1,115 @@
+.interview-container {
+  padding: 50px;
+
+  max-width: 900px;
+
+  margin: auto;
+}
+
+.interview-container h1 {
+  margin-bottom: 30px;
+}
+
+.interview-container p {
+  margin-top: 20px;
+
+  font-size: 20px;
+}
+
+.feedback-box {
+  margin-top: 30px;
+
+  background: #1e293b;
+
+  padding: 20px;
+
+  border-radius: 10px;
+}
+.loader-container {
+  min-height: 80vh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  align-items: center;
+}
+
+.loader {
+  width: 70px;
+
+  height: 70px;
+
+  border: 8px solid #334155;
+
+  border-top: 8px solid #2563eb;
+
+  border-radius: 50%;
+
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+
+  100% {
+    transform: rotate(360deg);
+  }
+
+}
+
+.upload-box,
+.question-box,
+.completed-box {
+  max-width: 800px;
+
+  margin: auto;
+
+  margin-top: 60px;
+
+  background: #1e293b;
+
+  padding: 40px;
+
+  border-radius: 15px;
+}
+
+.question-box p {
+  margin-top: 20px;
+
+  font-size: 22px;
+}
+
+.question-box textarea {
+  width: 100%;
+
+  margin-top: 20px;
+
+  padding: 20px;
+
+  border-radius: 10px;
+}
+.result-container {
+  padding: 50px;
+}
+
+.result-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit,
+    minmax(300px, 1fr));
+
+  gap: 30px;
+
+  margin-top: 40px;
+}
+
+.result-card {
+  background: #1e293b;
+
+  padding: 25px;
+
+  border-radius: 12px;
+}
