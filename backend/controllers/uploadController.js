@@ -7,6 +7,9 @@ const analyzeResume =
 const generateInterviewQuestions =
   require("../rag/interviewChain");
 
+const createRetriever =
+  require("../rag/retriever");
+
 exports.uploadResume =
   async (req, res) => {
 
@@ -20,8 +23,28 @@ exports.uploadResume =
           filePath
         );
 
-      // STEP 1
-      // Analyze Resume
+      const retriever =
+        await createRetriever(
+          extractedText
+        );
+
+      const relevantDocs =
+        await retriever.invoke(`
+Projects
+Technologies
+Languages
+Frameworks
+Databases
+Skills
+`);
+
+      const relevantContext =
+        relevantDocs
+          .map(
+            doc =>
+              doc.pageContent
+          )
+          .join("\n");
 
       const analysis =
         await analyzeResume(
@@ -57,19 +80,18 @@ exports.uploadResume =
           tools: [],
           skills: [],
         };
-
       }
-
-      // STEP 2
-      // Generate Questions
 
       const questions =
         await generateInterviewQuestions(
-          parsedAnalysis
+          parsedAnalysis,
+          relevantContext
         );
 
       res.json({
         questions,
+        resumeText:
+          extractedText,
       });
 
     } catch (error) {
@@ -77,8 +99,8 @@ exports.uploadResume =
       console.log(error);
 
       res.status(500).json({
-        error: error.message,
+        error:
+          error.message,
       });
-
     }
   };

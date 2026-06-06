@@ -1,0 +1,13 @@
+body {
+  margin: 0;
+  font-family: Inter, Segoe UI, sans-serif;
+  background: #f8fafc;
+}
+
+a {
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+}

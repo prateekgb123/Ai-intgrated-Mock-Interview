@@ -2,14 +2,19 @@ const groqModel =
   require("../config/groq");
 
 const generateInterviewQuestions =
-  async (data) => {
+  async (
+    data,
+    context
+  ) => {
 
     try {
 
       const prompt = `
-You are a senior software engineer interviewer.
+You are a senior technical interviewer.
 
-Candidate Resume Analysis:
+Resume Context:
+
+${context}
 
 Projects:
 ${data.projects.join(", ")}
@@ -32,34 +37,25 @@ ${data.tools.join(", ")}
 Skills:
 ${data.skills.join(", ")}
 
-IMPORTANT RULES:
-1. Ask ONLY resume-specific questions
-2. Do NOT ask generic questions
-3. Questions MUST depend on:
-   - projects
-   - technologies
-   - frameworks
-   - tools
-4. Different resumes MUST generate different questions
-5. Ask implementation-level questions
-6. Ask architecture questions
-7. Ask project challenge questions
+RULES:
+
+1. Ask ONLY questions from resume.
+2. Ask project-specific questions.
+3. Ask implementation questions.
+4. Ask architecture questions.
+5. Ask technology-specific questions.
+6. Different resumes must generate different questions.
 
 Generate exactly 10 questions.
 
-Return ONLY valid JSON.
-
-Format:
+Return ONLY JSON.
 
 [
   {
     "question":
-    "Explain your JWT authentication implementation in your MERN project"
+    "Explain how you implemented JWT authentication in your AI Interview project"
   }
 ]
-
-No markdown.
-No explanation.
 `;
 
       const response =
@@ -79,7 +75,6 @@ No explanation.
             "Explain your latest project"
         }
       ]);
-
     }
   };
 

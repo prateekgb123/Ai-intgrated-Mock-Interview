@@ -1,50 +1,181 @@
 .interview-container {
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 60px;
+
+  background: #f8fafc;
+}
+
+.upload-box {
+  width: 900px;
+
+  background: linear-gradient(
+    135deg,
+    #1e293b,
+    #0f172a
+  );
+
+  color: white;
+
+  padding: 60px;
+
+  border-radius: 25px;
+
+  text-align: center;
+
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+.upload-box h1 {
+  font-size: 3rem;
+  margin-bottom: 40px;
+}
+
+.generate-btn {
+  background: #3b82f6;
+
+  color: white;
+
+  border: none;
+
+  padding: 15px 35px;
+
+  border-radius: 14px;
+
+  font-size: 18px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.generate-btn:hover {
+  background: #2563eb;
+}
+
+.question-box {
+  width: 950px;
+
+  background: linear-gradient(
+    135deg,
+    #1e293b,
+    #0f172a
+  );
+
+  color: white;
+
   padding: 50px;
 
-  max-width: 900px;
+  border-radius: 25px;
 
-  margin: auto;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
 }
 
-.interview-container h1 {
-  margin-bottom: 30px;
+.question-box h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
 }
 
-.interview-container p {
+.question-box p {
+  font-size: 1.4rem;
+  margin-bottom: 25px;
+}
+
+.question-box textarea {
+  width: 100%;
+
+  min-height: 220px;
+
+  border: none;
+  outline: none;
+
+  border-radius: 15px;
+
+  padding: 20px;
+
+  font-size: 17px;
+
+  resize: none;
+}
+
+.question-box button {
   margin-top: 20px;
 
-  font-size: 20px;
+  background: #3b82f6;
+  color: white;
+
+  border: none;
+
+  padding: 14px 30px;
+
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.question-box button:hover {
+  background: #2563eb;
 }
 
 .feedback-box {
   margin-top: 30px;
 
-  background: #1e293b;
+  background: #0f172a;
 
-  padding: 20px;
+  border-left: 5px solid #3b82f6;
 
-  border-radius: 10px;
+  padding: 25px;
+
+  border-radius: 15px;
 }
+
+.progress {
+  width: 100%;
+  height: 10px;
+
+  background: #334155;
+
+  border-radius: 20px;
+
+  margin-bottom: 30px;
+}
+
+.progress-fill {
+  height: 100%;
+
+  background: #3b82f6;
+
+  border-radius: 20px;
+
+  transition: 0.3s;
+}
+
 .loader-container {
-  min-height: 80vh;
+  height: 100vh;
 
   display: flex;
-
   flex-direction: column;
-
   justify-content: center;
-
   align-items: center;
+
+  gap: 25px;
 }
 
 .loader {
-  width: 70px;
+  width: 90px;
+  height: 90px;
 
-  height: 70px;
-
-  border: 8px solid #334155;
-
-  border-top: 8px solid #2563eb;
+  border: 8px solid #cbd5e1;
+  border-top: 8px solid #3b82f6;
 
   border-radius: 50%;
 
@@ -52,64 +183,69 @@
 }
 
 @keyframes spin {
-
   100% {
     transform: rotate(360deg);
   }
-
 }
 
-.upload-box,
-.question-box,
-.completed-box {
-  max-width: 800px;
-
-  margin: auto;
-
-  margin-top: 60px;
-
-  background: #1e293b;
-
-  padding: 40px;
-
-  border-radius: 15px;
-}
-
-.question-box p {
-  margin-top: 20px;
-
-  font-size: 22px;
-}
-
-.question-box textarea {
-  width: 100%;
-
-  margin-top: 20px;
-
-  padding: 20px;
-
-  border-radius: 10px;
-}
 .result-container {
-  padding: 50px;
+  padding: 60px;
+}
+
+.result-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.result-container h2 {
+  text-align: center;
+  color: #3b82f6;
+  margin-bottom: 50px;
 }
 
 .result-grid {
   display: grid;
 
   grid-template-columns:
-    repeat(auto-fit,
-    minmax(300px, 1fr));
+    repeat(auto-fit, minmax(300px, 1fr));
 
-  gap: 30px;
-
-  margin-top: 40px;
+  gap: 20px;
 }
 
 .result-card {
-  background: #1e293b;
+  background: linear-gradient(
+    135deg,
+    #1e293b,
+    #0f172a
+  );
+
+  color: white;
+
+  border-radius: 20px;
 
   padding: 25px;
+}
+.coding-container{
+max-width:900px;
+margin:auto;
+padding:40px;
+}
 
-  border-radius: 12px;
+.coding-container textarea{
+width:100%;
+margin-top:20px;
+padding:20px;
+border-radius:10px;
+font-family:monospace;
+font-size:16px;
+}
+
+.coding-container button{
+margin-top:20px;
+padding:12px 25px;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:10px;
+cursor:pointer;
 }

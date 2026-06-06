@@ -10,6 +10,7 @@
     "@langchain/community": "^0.0.57",
     "@langchain/core": "^0.1.63",
     "@langchain/groq": "^0.0.14",
+    "axios": "^1.17.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

@@ -1,18 +1,22 @@
 const {
   MemoryVectorStore,
-} = require("langchain/vectorstores/memory");
+} = require(
+  "langchain/vectorstores/memory"
+);
 
-const embeddings = require("./embeddings");
+const embeddings =
+  require("./embeddings");
 
-async function createVectorStore(textChunks) {
-  const vectorStore =
-    await MemoryVectorStore.fromTexts(
-      textChunks,
-      [],
+async function createVectorStore(
+  docs
+) {
+
+  return await MemoryVectorStore
+    .fromDocuments(
+      docs,
       embeddings
     );
-
-  return vectorStore;
 }
 
-module.exports = createVectorStore;
+module.exports =
+  createVectorStore;

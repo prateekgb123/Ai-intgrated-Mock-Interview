@@ -11,8 +11,6 @@ import Login from "./components/Login";
 
 import Signup from "./components/Signup";
 
-import UploadResume from "./components/UploadResume";
-
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import Home from "./pages/Home";
@@ -96,17 +94,7 @@ function App() {
           }
         />
 
-        {/* UPLOAD */}
-
-        <Route
-          path="/upload"
-          element={
-            <ProtectedRoute>
-              <UploadResume />
-            </ProtectedRoute>
-          }
-        />
-
+  
         {/* INTERVIEW */}
 
         <Route

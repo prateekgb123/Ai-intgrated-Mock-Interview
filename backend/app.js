@@ -38,7 +38,10 @@ app.use(
   "/api/interview",
   require("./routes/interviewRoutes")
 );
-
+app.use(
+"/api/coding",
+require("./routes/codingRoutes")
+);
 
 const PORT =
   process.env.PORT || 5000;

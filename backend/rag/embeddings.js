@@ -13,4 +13,5 @@ const embeddings =
       "sentence-transformers/all-MiniLM-L6-v2",
   });
 
-module.exports = embeddings;
+module.exports =
+  embeddings;

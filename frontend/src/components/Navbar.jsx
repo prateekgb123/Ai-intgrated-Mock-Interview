@@ -25,7 +25,7 @@ const Navbar = () => {
               Interview
             </Link>
 
-            <button onClick={logout}>
+            <button className="logout-btn" onClick={logout}>
               Logout
             </button>
           </>

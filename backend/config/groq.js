@@ -12,4 +12,5 @@ const groqModel =
     temperature: 0.7,
   });
 
-module.exports = groqModel;
+module.exports =
+  groqModel;

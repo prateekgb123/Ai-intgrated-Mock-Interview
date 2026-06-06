@@ -1,25 +1,80 @@
+import { useNavigate } from "react-router-dom";
+import "../styles/dashboard.css";
+
 const Dashboard = () => {
+
+  const navigate = useNavigate();
+
+  const cards = [
+    {
+      title: "AI Interview",
+      icon: "🎤",
+      description: "Practice AI mock interviews",
+      route: "/interview",
+    },
+    {
+      title: "Resume Analysis",
+      icon: "📄",
+      description: "Analyze your resume",
+      route: "/resume-analysis",
+    },
+    {
+      title: "Coding Round",
+      icon: "💻",
+      description: "Practice coding questions",
+      route: "/coding",
+    },
+    {
+      title: "Company Preparation",
+      icon: "🏢",
+      description: "Prepare for company interviews",
+      route: "/company-prep",
+    },
+    {
+      title: "Interview History",
+      icon: "📊",
+      description: "View previous attempts",
+      route: "/history",
+    },
+    {
+      title: "Analytics",
+      icon: "🏆",
+      description: "Track interview performance",
+      route: "/analytics",
+    },
+  ];
+
   return (
-    <div className="dashboard">
-      <h1>Dashboard</h1>
+    <div className="dashboard-container">
 
-      <div className="dashboard-cards">
-        <div className="card">
-          <h3>AI Interviews</h3>
-        </div>
+      <h1 className="dashboard-title">
+        Dashboard
+      </h1>
 
-        <div className="card">
-          <h3>Resume Analysis</h3>
-        </div>
+      <div className="dashboard-grid">
 
-        <div className="card">
-          <h3>Coding Round</h3>
-        </div>
+        {cards.map((card, index) => (
 
-        <div className="card">
-          <h3>Company Preparation</h3>
-        </div>
+          <div
+            key={index}
+            className="dashboard-card"
+            onClick={() => navigate(card.route)}
+          >
+
+            <h2>
+              {card.icon} {card.title}
+            </h2>
+
+            <p>
+              {card.description}
+            </p>
+
+          </div>
+
+        ))}
+
       </div>
+
     </div>
   );
 };
