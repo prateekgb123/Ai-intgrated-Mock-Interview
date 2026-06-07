@@ -42,7 +42,12 @@ app.use(
 "/api/coding",
 require("./routes/codingRoutes")
 );
-
+app.use(
+"/api/resume-analysis",
+require(
+"./routes/resumeAnalysisRoutes"
+)
+);
 const PORT =
   process.env.PORT || 5000;
 

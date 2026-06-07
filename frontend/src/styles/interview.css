@@ -249,3 +249,41 @@ border:none;
 border-radius:10px;
 cursor:pointer;
 }
+.resume-container{
+max-width:900px;
+margin:auto;
+padding:40px;
+}
+
+.resume-container h1{
+margin-bottom:30px;
+}
+
+.resume-container button{
+margin-left:20px;
+padding:12px 25px;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:10px;
+cursor:pointer;
+}
+
+.analysis-card{
+margin-top:40px;
+padding:30px;
+border-radius:20px;
+background:white;
+box-shadow:
+0 10px 30px rgba(0,0,0,.1);
+}
+
+.analysis-card h2{
+color:#2563eb;
+margin-bottom:20px;
+}
+
+.analysis-card ul{
+margin-bottom:20px;
+padding-left:20px;
+}
