@@ -48,6 +48,10 @@ require(
 "./routes/resumeAnalysisRoutes"
 )
 );
+app.use(
+  "/api/company",
+  require("./routes/companyRoutes")
+);
 const PORT =
   process.env.PORT || 5000;
 
