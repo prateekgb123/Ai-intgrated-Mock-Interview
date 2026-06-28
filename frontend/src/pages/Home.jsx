@@ -1,12 +1,37 @@
 import { useNavigate } from "react-router-dom";
 
+import javaImg from "../icons/java.png";
+import mernImg from "../icons/mern.png";
+import hrImg from "../icons/hr.png";
+import dsaImg from "../icons/dsa.png";
+import systemImg from "../icons/system.jpg";
+import databaseImg from "../icons/database.jpg";
+
 const interviews = [
-  "Java",
-  "MERN Stack",
-  "HR",
-  "DSA",
-  "System Design",
-  "Database",
+  {
+    title: "Java",
+    image: javaImg,
+  },
+  {
+    title: "MERN Stack",
+    image: mernImg,
+  },
+  {
+    title: "HR",
+    image: hrImg,
+  },
+  {
+    title: "DSA",
+    image: dsaImg,
+  },
+  {
+    title: "System Design",
+    image: systemImg,
+  },
+  {
+    title: "Database",
+    image: databaseImg,
+  },
 ];
 
 const Home = () => {
@@ -28,22 +53,18 @@ const Home = () => {
   };
 
   return (
+
     <div className="home-page">
 
       <div className="hero">
 
-        <h1>
-          AI Interview Copilot
-        </h1>
+        <h1>AI Interview Copilot</h1>
 
         <p>
-          Practice AI-powered interviews
-          using LangChain and RAG.
+          Practice AI-powered interviews using LangChain and RAG.
         </p>
 
-        <button
-          onClick={startPersonalizedInterview}
-        >
+        <button onClick={startPersonalizedInterview}>
           Personalized Interview
         </button>
 
@@ -62,11 +83,17 @@ const Home = () => {
             className="interview-card"
           >
 
-            <h3>{item}</h3>
+            <img
+              src={item.image}
+              alt={item.title}
+              className="interview-image"
+            />
+
+            <h3>{item.title}</h3>
 
             <button
               onClick={() =>
-                startInterview(item)
+                startInterview(item.title)
               }
             >
               Start Interview
@@ -79,7 +106,9 @@ const Home = () => {
       </div>
 
     </div>
+
   );
+
 };
 
 export default Home;

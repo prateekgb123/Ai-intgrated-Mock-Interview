@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logo from "../icons/ai.jpg";
 
 const Navbar = () => {
   const token = localStorage.getItem("token");
@@ -10,10 +11,22 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      <h2>AI Interview Copilot</h2>
+
+      <div className="navbar-logo">
+
+        <img
+          src={logo}
+          alt="AI Interview Copilot"
+          className="logo-image"
+        />
+
+        <h2>AI Interview Copilot</h2>
+
+      </div>
 
       <div className="nav-links">
-        <Link to="/">Home</Link>
+
+        <Link to="/home">Home</Link>
 
         {token && (
           <>
@@ -25,7 +38,10 @@ const Navbar = () => {
               Interview
             </Link>
 
-            <button className="logout-btn" onClick={logout}>
+            <button
+              className="logout-btn"
+              onClick={logout}
+            >
               Logout
             </button>
           </>
@@ -33,14 +49,18 @@ const Navbar = () => {
 
         {!token && (
           <>
-            <Link to="/login">Login</Link>
+            <Link to="/login">
+              Login
+            </Link>
 
             <Link to="/signup">
               Signup
             </Link>
           </>
         )}
+
       </div>
+
     </nav>
   );
 };
