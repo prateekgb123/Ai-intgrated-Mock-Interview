@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import logo from "../icons/ai.jpg";
-
+import { useNavigate } from "react-router-dom";
 const Navbar = () => {
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
   const logout = () => {
     localStorage.clear();
-    window.location.href = "/";
+    navigate("/");
   };
 
   return (
