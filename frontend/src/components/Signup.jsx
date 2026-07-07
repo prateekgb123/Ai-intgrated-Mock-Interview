@@ -5,9 +5,9 @@ import "../styles/auth.css";
 import API from "../services/api";
 import { useNavigate } from "react-router-dom";
 
-const navigate = useNavigate();
-const Signup = () => {
 
+const Signup = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] =
     useState({
       name: "",
