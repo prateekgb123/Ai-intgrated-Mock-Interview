@@ -6,109 +6,133 @@ import hrImg from "../icons/hr.png";
 import dsaImg from "../icons/dsa.png";
 import systemImg from "../icons/system.jpg";
 import databaseImg from "../icons/database.jpg";
+import backgroundImg from "../icons/background.jpg";
 
 const interviews = [
   {
     title: "Java",
     image: javaImg,
+    description: "Core Java, OOP, Collections, Multithreading & JDBC",
   },
   {
     title: "MERN Stack",
     image: mernImg,
+    description: "MongoDB, Express, React, Node.js Interview Questions",
   },
   {
     title: "HR",
     image: hrImg,
+    description: "Behavioral, Communication & HR Interview Preparation",
   },
   {
     title: "DSA",
     image: dsaImg,
+    description: "Arrays, Trees, Graphs, Dynamic Programming & More",
   },
   {
     title: "System Design",
     image: systemImg,
+    description: "Scalable System Design & Architecture Questions",
   },
   {
     title: "Database",
     image: databaseImg,
+    description: "SQL, Normalization, Transactions & DBMS Concepts",
   },
 ];
 
 const Home = () => {
-
   const navigate = useNavigate();
 
   const startInterview = (category) => {
-
-    navigate(
-      `/interview?category=${encodeURIComponent(category)}`
-    );
-
+    navigate(`/interview?category=${encodeURIComponent(category)}`);
   };
 
   const startPersonalizedInterview = () => {
-
     navigate("/interview");
-
   };
 
   return (
-
     <div className="home-page">
 
-      <div className="hero">
+      {/* ================= HERO ================= */}
 
-        <h1>AI Interview Copilot</h1>
+      <section
+        className="hero"
+        style={{
+          backgroundImage: `
+            linear-gradient(
+              rgba(15,23,42,0.65),
+              rgba(15,23,42,0.65)
+            ),
+            url(${backgroundImg})
+          `,
+        }}
+      >
+        <div className="hero-content">
 
-        <p>
-          Practice AI-powered interviews using LangChain and RAG.
-        </p>
+          <h1>AI Interview Copilot</h1>
 
-        <button onClick={startPersonalizedInterview}>
-          Personalized Interview
-        </button>
+          <p>
+            Master your interviews with AI-powered mock interviews,
+            personalized resume analysis, coding challenges,
+            and company-specific preparation.
+          </p>
 
-      </div>
+          <button onClick={startPersonalizedInterview}>
+            Personalized Interview
+          </button>
 
-      <h2 className="section-title">
-        General Mock Interviews
-      </h2>
+        </div>
+      </section>
 
-      <div className="interview-grid">
+      {/* ================= GENERAL INTERVIEWS ================= */}
 
-        {interviews.map((item, index) => (
+      <section className="general-section">
 
-          <div
-            key={index}
-            className="interview-card"
-          >
+        <h2 className="section-title">
+          General Mock Interviews
+        </h2>
 
-            <img
-              src={item.image}
-              alt={item.title}
-              className="interview-image"
-            />
+        <div className="interview-grid">
 
-            <h3>{item.title}</h3>
+          {interviews.map((item, index) => (
 
-            <button
-              onClick={() =>
-                startInterview(item.title)
-              }
+            <div
+              key={index}
+              className="interview-card"
             >
-              Start Interview
-            </button>
 
-          </div>
+              <img
+                src={item.image}
+                alt={item.title}
+                className="interview-image"
+              />
 
-        ))}
+              <div className="interview-content">
 
-      </div>
+                <h3>{item.title}</h3>
+
+                <p>{item.description}</p>
+
+                <button
+                  onClick={() => startInterview(item.title)}
+                >
+                  Start Interview
+                </button>
+
+              </div>
+
+            </div>
+
+          ))}
+
+        </div>
+
+      </section>
 
     </div>
-
   );
-
 };
 
 export default Home;
