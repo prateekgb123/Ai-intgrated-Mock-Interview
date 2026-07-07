@@ -3,7 +3,9 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/auth.css";
 import API from "../services/api";
+import { useNavigate } from "react-router-dom";
 
+const navigate = useNavigate();
 const Signup = () => {
 
   const [formData, setFormData] =
@@ -35,9 +37,7 @@ const Signup = () => {
       );
 
       alert("Signup Successful");
-
-      window.location.href =
-        "/login";
+      navigate("/login");
 
     } catch (error) {
 
